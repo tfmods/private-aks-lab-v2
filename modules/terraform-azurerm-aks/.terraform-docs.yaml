@@ -1,0 +1,88 @@
+header-from: main.tf
+
+formatter: "markdown table"
+
+sort:
+  enabled: true
+  by: required
+
+content: |
+  # ☸ - Azure Aks 4 All Module
+  
+  This Module has the objective to deploy a complete kubernetes solution over microsoft azure
+
+
+  ## Feature List 
+
+   - [Done] Private Mode enabled
+   - [in-progress] CSI Driver for Storage Account
+   - [Done] CSI Driver for Azure Key Vault Secrets 
+   - [Done] Azure Container Registry Integration 
+   - [Done] Secure Private Api Server
+   - [Done] Private Endpoint for Api Server 
+   - [Done] Network Segmentation for Cluster, Api and Loadbalancers
+   - [to-do] Nginx Ingress with Private Loadbalance
+   - [done] Ensure azure best pratices in naming convention :
+     Example:  
+       ```hcl 
+       ${resource_name}${var.project}${var.environment}${var.location}-001 or ${resource_name}${var.project}${var.environment}${var.location} 
+       ```
+   - [done] Administrative tags
+        ```hcl
+        locals {
+        default_tags = {
+        Environment          = var.environment
+        ManagedBy            = "Terraform"
+        SolutionName         = "Azure Caf AKS Module"
+        Version              = var.solution_version
+        DevOpsTeam           = "SoftwareOne DevOps Team"
+        SolutionDevelopers   = "rosthan.silva@softwareone.com"
+        Location             = var.location
+        SolutionRepo         = "tf-caf-az-k8s-mod"
+        Departament          = var.departament
+        DepartamentPrincipal = var.departament_principal
+        CostCentre           = var.costcentre
+        Administrator        = var.resource_admin
+        }
+      }
+      ```
+   
+  ## Example 01 - Private Cluster + Spot Instance development Node Pool   
+      ![ Aks Aquitetura de cluster Privado ](example/imgs/private-arch.png "Aks Aquitetura de cluster Privado")
+
+  ``` Go
+  {{ include "example/private-cluster/main.tf" }}
+  ```
+
+  ### Public
+  ``` Go
+  To be created
+  ```
+
+  {{ .Providers }}
+
+  {{ .Resources }}
+
+  {{ .Inputs }}
+
+  {{ .Outputs }}
+
+  ## Would you like to contribute?
+
+  To contribute with this repository you must install [**terraform-docs**](https://terraform-docs.io/user-guide/installation/).
+  Steps:
+    * Clone this repo;
+    * Create a branch;
+    * Prepare your changes;
+    * Commit and tag;
+    * Document your code using `make prepare-readme`;
+    * Push and Pull request,
+  
+  <sub>Questions? let me know: rosthanlinux@outlook.com </sub>
+  
+settings:
+  color: true
+  default: true
+  description: true
+  sensitive: true
+  type: true

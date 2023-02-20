@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: my-ingress-resource
+spec:
+  rules:
+  - host: nginx.example.com
+    http:
+      paths:
+      - backend:
+          serviceName: nginx-deploy-main
+          servicePort: 80
+  - host: tea.myshop.com
+    http:
+      paths:
+      - backend:
+          serviceName: tea-deploy
+          servicePort: 80
+  - host: coffee.myshop.com
+    http:
+      paths:
+      - backend:
+          serviceName: coffee-deploy
+          servicePort: 80

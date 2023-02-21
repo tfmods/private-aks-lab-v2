@@ -83,6 +83,8 @@ data:
       }
       
       include /etc/nginx/virtualhost/virtualhost.conf;
+      # Volume mount from azure file share to add nginx config files 
+      include /etc/nginx/includes/*.conf
     }
   virtualhost.conf: |
     upstream app {

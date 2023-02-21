@@ -27,14 +27,17 @@ spec:
             memory: "500Mi"
             cpu: "200m"   
         volumeMounts:
-        - name: my-azurefile-volume
-            mountPath: "/etc/nginx/includes/"
+        - name: azurefileshare
+          mountPath: /etc/nginx/includes/
         - mountPath: /etc/nginx # mount nginx-conf volumn to /etc/nginx
           readOnly: true
           name: nginx-conf
         - mountPath: /var/log/nginx
           name: log
       volumes:
+      - name: azurefileshare
+        persistentVolumeClaim:
+          claimName: azurefile
       - name: nginx-conf
         configMap:
           name: nginx-conf # place ConfigMap `nginx-conf` on /etc/nginx

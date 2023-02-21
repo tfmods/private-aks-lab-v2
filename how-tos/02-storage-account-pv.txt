@@ -1,1 +1,0 @@
-STORAGE_KEY=$(az storage account keys list --resource-group nopublicipaks --account-name aksstaxpto --query "[0].value" -o tsv)

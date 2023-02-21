@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: hpa-nginx
-        image: nginx:latest
+        image: nginx:alpine-latest
         ports:
         - containerPort: 80
         resources:
@@ -27,7 +27,8 @@ spec:
             memory: "500Mi"
             cpu: "200m"   
         volumeMounts:
-        - name: azurefileshare
+        #Volume from azure file share terraform deployed 
+        - name: azure
           mountPath: /etc/nginx/includes/
         - mountPath: /etc/nginx # mount nginx-conf volumn to /etc/nginx
           name: nginx-conf
@@ -35,9 +36,14 @@ spec:
         - mountPath: /var/log/nginx
           name: log
       volumes:
-      - name: azurefileshare
-        persistentVolumeClaim:
-          claimName: azurefile
+      - name: azure
+        csi:
+          driver: file.csi.azure.com
+          readOnly: false
+          volumeAttributes:
+            secretName: azure-secret  # required
+            shareName: nginx-configs  # required
+            mountOptions: "dir_mode=0777,file_mode=0777,cache=strict,actimeo=30,nosharesock"  # optional
       - name: nginx-conf
         configMap:
           name: nginx-conf # place ConfigMap `nginx-conf` on /etc/nginx

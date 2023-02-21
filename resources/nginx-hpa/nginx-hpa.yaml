@@ -30,8 +30,8 @@ spec:
         - name: azurefileshare
           mountPath: /etc/nginx/includes/
         - mountPath: /etc/nginx # mount nginx-conf volumn to /etc/nginx
-          readOnly: true
           name: nginx-conf
+          readOnly: true
         - mountPath: /var/log/nginx
           name: log
       volumes:

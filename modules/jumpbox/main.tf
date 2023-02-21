@@ -89,13 +89,7 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
       "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -",
       "echo 'deb https://apt.kubernetes.io/ kubernetes-xenial main' | sudo tee -a /etc/apt/sources.list.d/kubernetes.list",
       "sudo apt-get update",
-      "sudo apt-get install -y kubectl",
-      "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash",
-      "bash -c '$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)'",
-      "curl 'https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash'",
-      "curl -s 'https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh'  | bash",
-      "mv kustomize /usr/local/bin",
-      "chmod +x -R /usr/local/bin/"
+      "sudo apt-get install -y kubectl"
     ]
   }
 }

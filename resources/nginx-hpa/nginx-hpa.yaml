@@ -43,7 +43,7 @@ spec:
           volumeAttributes:
             secretName: azure-secret  # required
             shareName: nginx-configs  # required
-            mountOptions: "dir_mode=0777,file_mode=0777,cache=strict,actimeo=30,nosharesock"  # optional
+            mountOptions: "vers=3.0,dir_mode=0777,file_mode=0777,cache=strict,actimeo=30,nosharesock"  # optional
       - name: nginx-conf
         configMap:
           name: nginx-conf # place ConfigMap `nginx-conf` on /etc/nginx

@@ -1,0 +1,15 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nginx
+spec:
+  containers:
+    - name: nginx-managed-disks
+      image: nginx
+      volumeMounts:
+      - mountPath: "/mnt/Azure"
+        name: volume
+  volumes:
+    - name: volume
+      persistentVolumeClaim:
+        claimName: Azure-managed-disk

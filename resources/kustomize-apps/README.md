@@ -1,3 +1,5 @@
+![Kustomize icon](img/kustomize.png "Kustomize Best Pratices")
+
 # Kustomize Best Practices
  - Keep your custom resources and their instances in separate packages, otherwise you will encounter race conditions and your creation will get stuck. For example, many people keep both the CertManager CRD and CertManager’s resources in the same package, which can cause problems. Most of the time, reapplying the YAML fixes the issue. But it's good practice to keep them separately.
  - Try to keep the common values like namespace, common metadata in the base file.

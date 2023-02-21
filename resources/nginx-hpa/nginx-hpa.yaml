@@ -5,7 +5,7 @@ metadata:
   labels:
     app: hpa-nginx
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: hpa-nginx
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: hpa-nginx
-        image: stacksimplify/kubenginx:1.0.0
+        image: nginx:latest
         ports:
         - containerPort: 80
         resources:

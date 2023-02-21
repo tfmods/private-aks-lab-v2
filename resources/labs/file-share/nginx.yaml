@@ -4,7 +4,7 @@ metadata:
   name: mypod-azurefile
 spec:
   containers:
-  - image: nginx
+  - image: docker.io/rosthan/alpine-nginx
     name: mypod
     volumeMounts:
       - name: mystorage

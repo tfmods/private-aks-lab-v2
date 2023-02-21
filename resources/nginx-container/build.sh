@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z ${DOCKER_USERNAME} ]; then
-    echo "Missing DOCKER_USERNAME variable!"
+    echo "Missing DOCKER_USERNAME variable! Do export DOCKER_USERNAME=yourusername"
     exit 1
 fi
 
@@ -39,3 +39,6 @@ error
 echo
 
 exit 0
+
+
+

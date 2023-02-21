@@ -112,7 +112,6 @@ data:
         proxy_http_version 1.1;
       }
     }
-
 ---
 apiVersion: v1
 kind: Service

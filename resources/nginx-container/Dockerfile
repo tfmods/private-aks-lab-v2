@@ -11,7 +11,7 @@ ENV TIMEZONE America/Sao_Paulo
 # Let's roll
 RUN	apk update && \
 	apk upgrade && \
-	apk add --update openssl nginx && \
+	apk add --update openssl nginx cifs-utils && \
 	apk add --update tzdata && \
 	cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
 	echo "${TIMEZONE}" > /etc/timezone && \

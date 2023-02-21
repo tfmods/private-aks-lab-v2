@@ -316,7 +316,7 @@ module "storage_account" {
   blob_containers = ["aks-blob1", "default"]
   #storage_queues         = []
   #storage_tables         = ["appTable", "devTable"]
-  storage_shares    = ["share-aks", "aks-drive"]
+  storage_shares    = ["nginx-configs", "aks-data-drive"]
   default_action    = "Deny"
   bypass_services   = [] # Try to avoid adding bypass services as this opens up access to ALL Azure customers.
   allowed_public_ip = [data.http.ip.response_body]

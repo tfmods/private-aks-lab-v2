@@ -198,3 +198,24 @@ resource "azurerm_firewall_application_rule_collection" "test" {
     }
   }
 }
+
+# resource "azurerm_firewall_application_rule_collection" "storage_account" {
+#   name                = "storage_account"
+#   azure_firewall_name = azurerm_firewall.fw.name
+#   resource_group_name = var.resource_group
+#   priority            = 105
+#   action              = "Allow"
+
+#   rule {
+#     name             = "allow network Con SMB"
+#     source_addresses = ["*"]
+#     destination_ports = ["445"]
+#     protocols         = ["Any"]
+
+
+#     # protocol {
+#     #   port = "445"
+#     #   type = "Http"
+#     # }
+#   }
+# }

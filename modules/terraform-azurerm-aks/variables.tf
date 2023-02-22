@@ -661,12 +661,12 @@ variable "enable_container_registry" {
 
 
 variable "vnet_id" {
-  type = string
+  type        = string
   description = ""
 }
 
 variable "hub_vnet_id" {
-  type = string
+  type        = string
   description = ""
 }
 
@@ -738,7 +738,7 @@ variable "white_list_ip" {
 }
 
 variable "aks_service_principal" {
-  type = map(string)
+  type    = map(string)
   default = {}
   /* Set value with .tfvars 
   {
@@ -749,7 +749,15 @@ variable "aks_service_principal" {
 }
 
 variable "aks_external_identity_id" {
-  type = string
-  default = null
+  type        = string
+  default     = null
   description = "External identity to manage aks resources"
+}
+
+
+variable "client_id" {
+}
+
+variable "client_secret" {
+ 
 }

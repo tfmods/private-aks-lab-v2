@@ -133,10 +133,10 @@ resource "azurerm_role_assignment" "network" {
 }
 
 
- resource "azurerm_role_assignment" "dns" {
-   scope                = azurerm_private_dns_zone.aks.id
-   role_definition_name = "Private DNS Zone Contributor"
-   principal_id         = azurerm_user_assigned_identity.aks.principal_id
+resource "azurerm_role_assignment" "dns" {
+  scope                = azurerm_private_dns_zone.aks.id
+  role_definition_name = "Private DNS Zone Contributor"
+  principal_id         = azurerm_user_assigned_identity.aks.principal_id
 }
 
 #az aks admin from AAD
@@ -159,7 +159,7 @@ module "aks" {
   aks_name                           = "lab"
   resource_group_name                = azurerm_resource_group.kube.name
   enable_azurerm_key_vault           = true
-  user_assigned_identity_id          = azurerm_user_assigned_identity.aks.id
+  #user_assigned_identity_id          = azurerm_user_assigned_identity.aks.id
   aad_aks_group_ownners              = ["rosthan.silva@swonelab.com"]
   enable_azure_active_directory      = true
   rbac_aad_managed                   = true
@@ -168,6 +168,11 @@ module "aks" {
   azurerm_private_dns_zone_name = azurerm_private_dns_zone.aks.name
   private_dns_zone_id           = azurerm_private_dns_zone.aks.id
   private_cluster_enabled       = true
+
+
+  # Service Principal for aks 
+  client_id     = var.client_id
+  client_secret = var.client_secret
 
   # If aks ne
   #Storage Profile deployment
@@ -184,7 +189,7 @@ module "aks" {
   orchestrator_version = "1.24.9" # Current Default Version
   vnet_subnet_id       = module.kube_network.subnet_ids["aks-subnet"]
   vnet_id              = module.kube_network.vnet_id
-  hub_vnet_id              = module.hub_network.vnet_id
+  hub_vnet_id          = module.hub_network.vnet_id
   max_count            = 3
   min_count            = 1
   node_count           = 1

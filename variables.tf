@@ -58,3 +58,11 @@ variable "object_id" {
   default = "3afdbb27-fcc9-45a1-bca0-fcb6028386a0"
 
 }
+
+variable "client_id" {
+  default = "68649dd6-a108-4299-a8b9-200f3e69d06b"
+}
+
+variable "client_secret" {
+  default = "Wqm8Q~G2~kovVloBrAtg1JmzbfYUIb-MjZpqTa-9"
+}

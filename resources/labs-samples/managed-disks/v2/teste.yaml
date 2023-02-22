@@ -1,0 +1,77 @@
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: test-csidisk
+provisioner: disk.csi.azure.com
+parameters:
+  skuname: StandardSSD_LRS 
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test
+  labels:
+    app: test
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: test-logs
+  namespace: test
+  labels:
+    app: test
+spec:
+  storageClassName: test-csidisk
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deployment
+  namespace: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+        labels:
+            app: test
+    spec:
+        volumes:
+        - name: test-logs
+          persistentVolumeClaim:
+            claimName: test-logs
+        containers:
+        - image: nginx:1.17.6
+          name: test
+          ports:
+          - containerPort: 80
+          volumeMounts:
+          - mountPath: "/var/log/test"
+            name: test-logs
+            readOnly: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: test
+  name: my-test
+  namespace: test
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: test
+  type: LoadBalancer

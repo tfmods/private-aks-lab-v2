@@ -130,25 +130,25 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   # Allow user assigned identity to manage AKS items in MC_xxx RG
-  
+
   #  identity {
   #    type         = var.user_assigned_identity_id == "" ? "SystemAssigned" : "UserAssigned"
   #    identity_ids = var.user_assigned_identity_id != "" ? "SystemAssigned" : "UserAssigned" [azurerm_user_assigned_identity.aks.id]
   #   # user_assigned_identity_id = var.user_assigned_identity_id == "" ? null : var.user_assigned_identity_id
   #  }
- 
- 
+
+
   # identity {
   #   type         = "UserAssigned"
   #   identity_ids = [azurerm_user_assigned_identity.aks.id]
 
   #  }
- 
- 
-   service_principal {
-     client_id = "68649dd6-a108-4299-a8b9-200f3e69d06b"
-     client_secret = "Wqm8Q~G2~kovVloBrAtg1JmzbfYUIb-MjZpqTa-9"
-   }
+
+
+  service_principal {
+    client_id     = var.client_id
+    client_secret = var.client_secret
+  }
 
   linux_profile {
     admin_username = var.admin_username
@@ -202,15 +202,6 @@ resource "azurerm_kubernetes_cluster" "main" {
     ]
 
   }
-
-
-  depends_on = [
-    azurerm_user_assigned_identity.aks,
-    azurerm_role_assignment.aks_uai_private_dns_zone_contributor,
-    azurerm_role_assignment.aks_uai_vnet_network_contributor,
-    azurerm_role_assignment.aks_uai_hub_vnet_network_contributor
-  ]
-
 }
 ####     === 
 ##  AKS - NodePool Tool - Module 

@@ -200,41 +200,41 @@ module "aks" {
   network_policy    = "calico"
   load_balancer_sku = "standard"
 
-  only_critical_addons_enabled = true
+  only_critical_addons_enabled = false
 
-  node_pools = [
-    {
-      name                 = "np001"
-      availability_zones   = ["1", "2", "3"]
-      enable_auto_scaling  = true
-      max_pods             = 100
-      orchestrator_version = "1.24.9"
-      priority             = "Regular"
-      max_count            = 3
-      min_count            = 1
-      node_count           = 1
-    },
-    {
-      name                 = "npspot001"
-      enable_auto_scaling  = true
-      max_pods             = 100
-      orchestrator_version = "1.24.9"
-      priority             = "Spot"
-      eviction_policy      = "Delete"
-      spot_max_price       = 0.5
-      max_count            = 3
-      min_count            = 1
-      node_count           = 1
-      # note: this is the "maximum" price
-      node_labels = {
-        "kubernetes.azure.com/scalesetpriority" = "spot"
-      }
-      node_taints = [
-        "kubernetes.azure.com/scalesetpriority=spot:NoSchedule"
-      ]
-      node_count = 1
-    }
-  ]
+  # node_pools = [
+  #   {
+  #     name                 = "np001"
+  #     availability_zones   = ["1", "2", "3"]
+  #     enable_auto_scaling  = true
+  #     max_pods             = 100
+  #     orchestrator_version = "1.24.9"
+  #     priority             = "Regular"
+  #     max_count            = 3
+  #     min_count            = 1
+  #     node_count           = 1
+  #   },
+  #   {
+  #     name                 = "npspot001"
+  #     enable_auto_scaling  = true
+  #     max_pods             = 100
+  #     orchestrator_version = "1.24.9"
+  #     priority             = "Spot"
+  #     eviction_policy      = "Delete"
+  #     spot_max_price       = 0.5
+  #     max_count            = 3
+  #     min_count            = 1
+  #     node_count           = 1
+  #     # note: this is the "maximum" price
+  #     node_labels = {
+  #       "kubernetes.azure.com/scalesetpriority" = "spot"
+  #     }
+  #     node_taints = [
+  #       "kubernetes.azure.com/scalesetpriority=spot:NoSchedule"
+  #     ]
+  #     node_count = 1
+  #   }
+  # ]
 
   tags = {
     "ManagedBy" = "Terraform"

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: hpa-nginx
-        image: rosthan/nginx-custom-alpine
+        image: rosthan/nginx-custom-alpine:latest
         ports:
         - containerPort: 80
         resources:

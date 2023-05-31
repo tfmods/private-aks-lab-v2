@@ -1,17 +1,17 @@
 terraform {
-  required_version = "1.3.9"
+  # required_version = "1.3.9"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "3.43.0"
     }
   }
-  backend "azurerm" {
+  /* backend "azurerm" {
     resource_group_name  = "tfstatelabs001"
     storage_account_name = "tfstatelabs001"
     container_name       = "tfstate001"
     key                  = "terraformv2.tfstate"
-  }
+  } */
 }
 provider "azurerm" {
   //outbound_type https://github.com/terraform-providers/terraform-provider-azurerm/blob/v2.5.0/CHANGELOG.md
@@ -29,7 +29,7 @@ resource "azurerm_resource_group" "kube" {
   name     = var.kube_resource_group_name
   location = var.location
 }
-
+/* 
 module "hub_network" {
   source              = "./modules/vnet"
   resource_group_name = azurerm_resource_group.vnet.name
@@ -89,8 +89,8 @@ module "firewall" {
   pip_name       = "azureFirewalls-ip"
   fw_name        = "kubenetfw"
   subnet_id      = module.hub_network.subnet_ids["AzureFirewallSubnet"]
-}
-
+} */
+/* 
 module "routetable" {
   source             = "./modules/route_table"
   resource_group     = azurerm_resource_group.vnet.name
@@ -99,24 +99,12 @@ module "routetable" {
   r_name             = "kubenetfw_fw_r"
   firewal_private_ip = module.firewall.fw_private_ip
   subnet_id          = module.kube_network.subnet_ids["aks-subnet"]
-}
-
-data "azurerm_kubernetes_service_versions" "current" {
-  location       = var.location
-  version_prefix = var.kube_version_prefix
-}
-
-# Aks identity
-resource "azurerm_user_assigned_identity" "aks" {
-  resource_group_name = azurerm_resource_group.kube.name
-  location            = azurerm_resource_group.kube.location
-
-  name = "identity-aks-teste"
-}
+} */
 
 
 
-resource "azurerm_private_dns_zone" "aks" {
+
+/* resource "azurerm_private_dns_zone" "aks" {
   name                = "privatelink.eastus.azmk8s.io"
   resource_group_name = azurerm_resource_group.kube.name
 }
@@ -130,20 +118,33 @@ resource "azurerm_role_assignment" "network" {
   scope                = azurerm_resource_group.vnet.id
   role_definition_name = "Contributor"
   principal_id         = azurerm_user_assigned_identity.aks.principal_id
-}
+} */
 
 
-resource "azurerm_role_assignment" "dns" {
+/* resource "azurerm_role_assignment" "dns" {
   scope                = azurerm_private_dns_zone.aks.id
   role_definition_name = "Private DNS Zone Contributor"
   principal_id         = azurerm_user_assigned_identity.aks.principal_id
-}
+} */
 
-#az aks admin from AAD
+/* #az aks admin from AAD
 data "azuread_user" "aad" {
   #how to find the user ID
   #az ad user show --id xpto@xarope.com on azure cli (bash ) or azure cloud shell
   object_id = var.object_id
+} */
+
+
+## DATASOURCES
+data "azurerm_resource_group" "main" {
+  name = "rg-dsv-aks"
+  #  location = "eastus2"
+}
+
+# Aks identity
+data "azurerm_user_assigned_identity" "aks" {
+  name                = "aks-dev-tbd-eastus2-01"
+  resource_group_name = data.azurerm_resource_group.main.name
 }
 
 # Get latest kubernetes Version
@@ -152,27 +153,38 @@ data "azurerm_kubernetes_service_versions" "main" {
   include_preview = false
 }
 
+data "azurerm_subnet" "main" {
+  name                 = "snet-tbd-eastus2-001"
+  virtual_network_name = "vn-tbd-eastus2"
+  resource_group_name  = "rg-network-tbd-eastus2-01"
+}
 
+data "azurerm_virtual_network" "main" {
+  name                = "vn-tbd-eastus2"
+  resource_group_name = "rg-network-tbd-eastus2-01"
+}
+
+#########
 module "aks" {
   source = "./modules/terraform-azurerm-aks"
   # prefixo de nome do aks
-  aks_name                           = "lab"
-  resource_group_name                = azurerm_resource_group.kube.name
-  enable_azurerm_key_vault           = true
+  aks_name                 = data.azurerm_user_assigned_identity.aks.name
+  resource_group_name      = data.azurerm_resource_group.main.name
+  enable_azurerm_key_vault = false
   #user_assigned_identity_id          = azurerm_user_assigned_identity.aks.id
-  aad_aks_group_ownners              = ["rosthan.silva@swonelab.com"]
-  enable_azure_active_directory      = true
-  rbac_aad_managed                   = true
-  key_vault_secrets_provider_enabled = true
+  #aad_aks_group_ownners              = ["rosthan.silva@swonelab.com"]
+  #enable_azure_active_directory      = true
+  #rbac_aad_managed                   = true
+  #key_vault_secrets_provider_enabled = true
   #rbac_aad_admin_group_object_ids = [azuread_group.aks.object_id]
-  azurerm_private_dns_zone_name = azurerm_private_dns_zone.aks.name
-  private_dns_zone_id           = azurerm_private_dns_zone.aks.id
-  private_cluster_enabled       = true
-
+  #azurerm_private_dns_zone_name = azurerm_private_dns_zone.aks.name
+  #private_dns_zone_id           = azurerm_private_dns_zone.aks.id
+  private_cluster_enabled        = true
+  azurerm_user_assigned_identity = data.azurerm_user_assigned_identity.aks.id
 
   # Service Principal for aks 
-  client_id     = var.client_id
-  client_secret = var.client_secret
+  /* client_id     = var.client_id
+  client_secret = var.client_secret */
 
   # If aks ne
   #Storage Profile deployment
@@ -187,18 +199,20 @@ module "aks" {
   max_pods            = 100
   #  orchestrator_version = data.azurerm_kubernetes_service_versions.aks.latest_version
   orchestrator_version = "1.24.9" # Current Default Version
-  vnet_subnet_id       = module.kube_network.subnet_ids["aks-subnet"]
-  vnet_id              = module.kube_network.vnet_id
-  hub_vnet_id          = module.hub_network.vnet_id
-  max_count            = 3
-  min_count            = 1
-  node_count           = 1
+  vnet_subnet_id       = data.azurerm_subnet.main.id
+  vnet_id              = data.azurerm_virtual_network.main.id
+  #hub_vnet_id          = module.hub_network.vnet_id
+  max_count  = 3
+  min_count  = 1
+  node_count = 1
 
-  enable_log_analytics_workspace = true
+  #enable_log_analytics_workspace = true
 
   network_plugin    = "kubenet"
   network_policy    = "calico"
   load_balancer_sku = "standard"
+  outbound_type     = var.outbound_type
+
 
   only_critical_addons_enabled = false
 
@@ -241,10 +255,10 @@ module "aks" {
   }
 
   depends_on = [
-    module.routetable,
-    azurerm_role_assignment.network,
-    azurerm_role_assignment.kube,
-    azurerm_private_dns_zone.aks
+    data.azurerm_user_assigned_identity.aks,
+    data.azurerm_resource_group.main,
+    data.azurerm_subnet.main,
+
   ]
 }
 
@@ -285,7 +299,7 @@ module "aks" {
 #   principal_id         = module.aks.aks_identity #azurerm_kubernetes_cluster.privateaks.identity[0].principal_id
 # }
 
-module "jumpbox" {
+/* module "jumpbox" {
   source                  = "./modules/jumpbox"
   location                = var.location
   resource_group          = azurerm_resource_group.vnet.name
@@ -297,10 +311,10 @@ module "jumpbox" {
   depends_on = [
     module.aks
   ]
-}
+} */
 
 
-####     ===cC   
+/* ####     ===cC   
 # Storage Account 
 ####     ===cC   
 data "http" "ip" {
@@ -327,4 +341,4 @@ module "storage_account" {
   allowed_public_ip = [data.http.ip.response_body]
   # If default_action is set to `Deny`, ensure the public IP where Terraform runs from still has access.
   #allowed_subnet_ids = [azurerm_virtual_network.kubernetes-vnet.id]
-}
+} */

@@ -613,10 +613,10 @@ variable "rbac_aad_server_app_secret" {
 }
 
 
-variable "aad_aks_group_ownners" {
+/* variable "aad_aks_group_ownners" {
   type        = list(string)
   description = "AAD Kubernetes Admin group Owners. This users can manipulate users in the aks amin group"
-}
+} */
 
 
 variable "create_aad_group" {
@@ -665,10 +665,10 @@ variable "vnet_id" {
   description = ""
 }
 
-variable "hub_vnet_id" {
+/* variable "hub_vnet_id" {
   type        = string
   description = ""
-}
+} */
 
 
 # variable "bastion_service_subnet_name" {
@@ -755,9 +755,14 @@ variable "aks_external_identity_id" {
 }
 
 
-variable "client_id" {
+/* variable "client_id" {
 }
 
 variable "client_secret" {
- 
+
+} */
+
+
+variable "azurerm_user_assigned_identity" {
+
 }

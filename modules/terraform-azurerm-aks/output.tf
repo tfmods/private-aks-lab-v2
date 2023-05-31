@@ -38,12 +38,12 @@ output "node_resource_group" {
 }
 
 # Azure AD Group Object Id
-output "azure_ad_group_id" {
+/* output "azure_ad_group_id" {
   value = azuread_group.main[*].id
 }
 output "azure_ad_group_objectid" {
   value = azuread_group.main[*].object_id
-}
+} */
 
 
 # Azure AKS Outputs

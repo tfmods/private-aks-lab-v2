@@ -8,11 +8,11 @@ data "azurerm_resource_group" "main" {
 
 
 
-data "azurerm_private_dns_zone" "main" {
+/* data "azurerm_private_dns_zone" "main" {
   # count     = var.azurerm_private_dns_zone_name == null ? 0 : 1
   name                = var.azurerm_private_dns_zone_name != null ? var.azurerm_private_dns_zone_name : null
   resource_group_name = var.azurerm_private_dns_zone_name != null ? data.azurerm_resource_group.main.name : null
-}
+} */
 
 
 ####     ===cC 
@@ -38,7 +38,7 @@ resource "tls_private_key" "main" {
 ##  AKS - Create Azure Ad Group for Azure Kubernetes Service 
 ####     ===cC               
 
-resource "azuread_group" "main" {
+/* resource "azuread_group" "main" {
   count = var.create_aad_group ? 1 : 0
 
   display_name     = format("${local.names.aks}-admins-%03d", count.index + 1)
@@ -46,13 +46,13 @@ resource "azuread_group" "main" {
   security_enabled = true
   owners           = [data.azuread_client_config.main.object_id]
 
-}
+} */
 
 ####     ===cC 
 ##  AKS - Enable Log nalitics For Kubernetes 
 ####     ===cC               
 
-resource "azurerm_log_analytics_workspace" "main" {
+/* resource "azurerm_log_analytics_workspace" "main" {
   count = var.enable_log_log_analytics_workspace ? 1 : 0
 
   name                = format("${local.names.alw}-%03d", count.index + 1)
@@ -63,7 +63,7 @@ resource "azurerm_log_analytics_workspace" "main" {
   tags = (merge(tomap({ ResourceName = "${format("${local.names.alw}-%03d", count.index + 1)}" }),
     local.default_tags,
   var.tags))
-}
+} */
 
 ####     ===cC 
 ##  AKS - Azure Kubernetes Cluster Resource 
@@ -138,17 +138,23 @@ resource "azurerm_kubernetes_cluster" "main" {
   #  }
 
 
-  # identity {
-  #   type         = "UserAssigned"
-  #   identity_ids = [azurerm_user_assigned_identity.aks.id]
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [var.azurerm_user_assigned_identity]
 
-  #  }
+  }
+
+  http_proxy_config {
+    http_proxy = "http://10.253.126.72:3128/"
+    https_proxy = "http://10.253.126.72:3128/"
+    
+  }
 
 
-  service_principal {
+  /* service_principal {
     client_id     = var.client_id
     client_secret = var.client_secret
-  }
+  } */
 
   linux_profile {
     admin_username = var.admin_username
@@ -163,7 +169,7 @@ resource "azurerm_kubernetes_cluster" "main" {
 
 
 
-  dynamic "key_management_service" {
+  /* dynamic "key_management_service" {
     for_each = var.enable_azurerm_key_vault == true ? [1] : []
     ##for_each  = var.enable_azurerm_key_vault == null ? {} : toset(local.kv_id)
     #iterator = kv
@@ -179,7 +185,7 @@ resource "azurerm_kubernetes_cluster" "main" {
       secret_rotation_enabled  = true
       secret_rotation_interval = "2m"
     }
-  }
+  } */
 
   dynamic "storage_profile" {
     for_each = var.storage_profile_enabled ? ["storage_profile"] : []
@@ -206,7 +212,7 @@ resource "azurerm_kubernetes_cluster" "main" {
 ####     === 
 ##  AKS - NodePool Tool - Module 
 ####     ===
-
+/* 
 resource "azurerm_key_vault" "main" {
   count                    = var.enable_azurerm_key_vault == null ? 0 : 1
   name                     = local.names.aks
@@ -228,7 +234,7 @@ resource "azurerm_key_vault" "main" {
     data.azurerm_resource_group.main
   ]
   tags = var.tags
-}
+} */
 
 
 module "nodes" {
@@ -240,14 +246,14 @@ module "nodes" {
   node_pools = var.node_pools
 }
 
-
+/* 
 resource "azurerm_container_registry" "main" {
   count               = var.enable_container_registry == null ? 0 : 1
   name                = local.names.acr
   resource_group_name = data.azurerm_resource_group.main.name
   location            = data.azurerm_resource_group.main.location
   sku                 = "Premium"
-}
+} */
 
 # # # Allow user assigned identity to manage AKS items in MC_xxx RG
 #  resource "azurerm_role_assignment" "aks_user_assigned" {

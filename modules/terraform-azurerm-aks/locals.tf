@@ -21,20 +21,16 @@ locals {
   naming          = "${var.project}-${var.environment}-${var.location}"
   aad_group_admin = toset(concat(["var.aad_aks_group_ownners", "data.azuread_client_config.main.object_id"]))
   names = {
-    aks = "${var.aks_name}${var.project}${var.environment}${var.location}"
-    alw = "${var.alw_name}-${local.naming}"
-    acr = "${var.aks_name}${var.project}${var.environment}${var.location}acr"
+    aks = "${var.aks_name}"
+    alw = "${var.alw_name}"
+    acr = "${var.aks_name}"
     # aad          = "${var.aad_group_name}-${local.naming}"
     #external_aad = "${var.current_aad_group_name}-${local.naming}"
   }
 
 }
 
-locals {
-  kv_id = {
-    id = azurerm_key_vault.main[0].id
-  }
-}
+
 
 locals {
   default_tags = {

@@ -54,7 +54,7 @@ variable "network_service_cidr" {
 }
 
 
-variable "object_id" {
+/* variable "object_id" {
   default = "3afdbb27-fcc9-45a1-bca0-fcb6028386a0"
 
 }
@@ -65,4 +65,13 @@ variable "client_id" {
 
 variable "client_secret" {
   default = "Wqm8Q~G2~kovVloBrAtg1JmzbfYUIb-MjZpqTa-9"
+} */
+
+variable "outbound_type" {
+  description = <<EOT
+The outbound (egress) routing method which should be used for this Kubernetes
+Cluster. Possible values are loadBalancer and userDefinedRouting.
+EOT
+  type        = string
+  default     = "userDefinedRouting"
 }

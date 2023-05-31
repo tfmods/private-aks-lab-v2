@@ -154,7 +154,7 @@ data "azurerm_kubernetes_service_versions" "main" {
 }
 
 data "azurerm_subnet" "main" {
-  name                 = "snet-tbd-eastus2-001"
+  name                 = "snet-tbd-eastus2-005"
   virtual_network_name = "vn-tbd-eastus2"
   resource_group_name  = "rg-network-tbd-eastus2-01"
 }

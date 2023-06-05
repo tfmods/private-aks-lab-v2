@@ -148,8 +148,7 @@ resource "azurerm_kubernetes_cluster" "main" {
     http_proxy = "http://10.253.126.72:3128/"
     https_proxy = "http://10.253.126.72:3128/"
     
-  }
-
+  } 
 
   /* service_principal {
     client_id     = var.client_id

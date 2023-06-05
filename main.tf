@@ -194,7 +194,7 @@ module "aks" {
   storage_profile_file_driver_enabled         = true
   storage_profile_snapshot_controller_enabled = true
 
-  availability_zones  = ["1", "2", "3"]
+  availability_zones  = ["1",]
   enable_auto_scaling = "true"
   max_pods            = 100
   #  orchestrator_version = data.azurerm_kubernetes_service_versions.aks.latest_version

@@ -35,7 +35,7 @@ variable "nodepool_nodes_count" {
 
 variable "nodepool_vm_size" {
   description = "Default nodepool VM size"
-  default     = "Standard_D2_v2"
+  default     = "Standard_B2s"
 }
 
 variable "network_docker_bridge_cidr" {

@@ -1,5 +1,9 @@
 terraform {
+<<<<<<< HEAD
   # required_version = "1.3.9"
+=======
+ # required_version = "1.3.9"
+>>>>>>> 6c8a56e (telefonica)
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -177,10 +181,17 @@ module "aks" {
   #rbac_aad_managed                   = true
   #key_vault_secrets_provider_enabled = true
   #rbac_aad_admin_group_object_ids = [azuread_group.aks.object_id]
+<<<<<<< HEAD
   #azurerm_private_dns_zone_name = azurerm_private_dns_zone.aks.name
   #private_dns_zone_id           = azurerm_private_dns_zone.aks.id
   private_cluster_enabled        = true
   azurerm_user_assigned_identity = data.azurerm_user_assigned_identity.aks.id
+=======
+  azurerm_private_dns_zone_name = azurerm_private_dns_zone.aks.name
+  private_dns_zone_id           = azurerm_private_dns_zone.aks.id
+  private_cluster_enabled       = true
+  
+>>>>>>> 6c8a56e (telefonica)
 
   # Service Principal for aks 
   /* client_id     = var.client_id
@@ -211,9 +222,14 @@ module "aks" {
   network_plugin    = "kubenet"
   network_policy    = "calico"
   load_balancer_sku = "standard"
+<<<<<<< HEAD
   outbound_type     = var.outbound_type
 
+=======
+  outbound_type = var.outbound_type
+>>>>>>> 6c8a56e (telefonica)
 
+  
   only_critical_addons_enabled = false
 
   # node_pools = [

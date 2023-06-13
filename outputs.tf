@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* output "ssh_command" {
+=======
+output "ssh_command" {
+>>>>>>> 6c8a56e (telefonica)
   value = "sudo apt install -y sshpass && sshpass -p ${nonsensitive(module.jumpbox.jumpbox_password)} ssh -o StrictHostKeyChecking=no ${module.jumpbox.jumpbox_username}@${module.jumpbox.jumpbox_ip}"
 }
 

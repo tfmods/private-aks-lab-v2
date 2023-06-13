@@ -1,9 +1,5 @@
 terraform {
-<<<<<<< HEAD
-  # required_version = "1.3.9"
-=======
- # required_version = "1.3.9"
->>>>>>> 6c8a56e (telefonica)
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"

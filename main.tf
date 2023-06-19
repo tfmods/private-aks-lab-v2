@@ -20,7 +20,7 @@ provider "azurerm" {
 
 data "azurerm_subscription" "main" {}
 
-resource "azurerm_resource_group" "vnet" {
+/* resource "azurerm_resource_group" "vnet" {
   name     = var.vnet_resource_group_name
   location = var.location
 }
@@ -28,7 +28,7 @@ resource "azurerm_resource_group" "vnet" {
 resource "azurerm_resource_group" "kube" {
   name     = var.kube_resource_group_name
   location = var.location
-}
+} */
 /* 
 module "hub_network" {
   source              = "./modules/vnet"
@@ -104,12 +104,9 @@ module "routetable" {
 
 
 
-/* resource "azurerm_private_dns_zone" "aks" {
-  name                = "privatelink.eastus.azmk8s.io"
-  resource_group_name = azurerm_resource_group.kube.name
-}
 
-resource "azurerm_role_assignment" "kube" {
+
+/* resource "azurerm_role_assignment" "kube" {
   scope                = azurerm_resource_group.kube.id
   role_definition_name = "Network Contributor"
   principal_id         = azurerm_user_assigned_identity.aks.principal_id
@@ -118,14 +115,15 @@ resource "azurerm_role_assignment" "network" {
   scope                = azurerm_resource_group.vnet.id
   role_definition_name = "Contributor"
   principal_id         = azurerm_user_assigned_identity.aks.principal_id
-} */
+}  
 
 
-/* resource "azurerm_role_assignment" "dns" {
+resource "azurerm_role_assignment" "dns" {
   scope                = azurerm_private_dns_zone.aks.id
   role_definition_name = "Private DNS Zone Contributor"
   principal_id         = azurerm_user_assigned_identity.aks.principal_id
-} */
+} 
+*/
 
 /* #az aks admin from AAD
 data "azuread_user" "aad" {
@@ -141,6 +139,19 @@ data "azurerm_resource_group" "main" {
   #  location = "eastus2"
 }
 
+resource "azurerm_private_dns_zone" "aks" {
+  name                = "privatelink.eastus2.azmk8s.io"
+  resource_group_name = data.azurerm_resource_group.main.name
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "main" {
+  name                  = "aks-dns-link"
+  resource_group_name   = data.azurerm_resource_group.main.name
+  private_dns_zone_name = azurerm_private_dns_zone.aks.name
+  virtual_network_id    = data.azurerm_virtual_network.main.id
+}
+
+
 # Aks identity
 data "azurerm_user_assigned_identity" "aks" {
   name                = "aks-dev-tbd-eastus2-01"
@@ -149,7 +160,7 @@ data "azurerm_user_assigned_identity" "aks" {
 
 # Get latest kubernetes Version
 data "azurerm_kubernetes_service_versions" "main" {
-  location        = azurerm_resource_group.kube.location
+  location        = data.azurerm_resource_group.main.location
   include_preview = false
 }
 
@@ -159,35 +170,48 @@ data "azurerm_subnet" "main" {
   resource_group_name  = "rg-network-tbd-eastus2-01"
 }
 
+
+
 data "azurerm_virtual_network" "main" {
   name                = "vn-tbd-eastus2"
   resource_group_name = "rg-network-tbd-eastus2-01"
 }
+
+### Linked networks
+/* data "azurerm_virtual_network" "vn-tcn-br-eastus2" {
+  name                = "vn-tcn-br-eastus2"
+  resource_group_name = "rg-network-tcn-br-eastus2-01"
+}
+
+data "azurerm_virtual_network" "vn-tss-eastus2" {
+  name                = "vn-tss-eastus2"
+  resource_group_name = "rg-network-tss-eastus2-01"
+} */
+
 
 #########
 module "aks" {
   source = "./modules/terraform-azurerm-aks"
   # prefixo de nome do aks
   aks_name                 = data.azurerm_user_assigned_identity.aks.name
+  azurerm_user_assigned_identity = data.azurerm_user_assigned_identity.aks.id
   resource_group_name      = data.azurerm_resource_group.main.name
   enable_azurerm_key_vault = false
+  #dns_prefix          = data.azurerm_user_assigned_identity.aks.name
   #user_assigned_identity_id          = azurerm_user_assigned_identity.aks.id
   #aad_aks_group_ownners              = ["rosthan.silva@swonelab.com"]
   #enable_azure_active_directory      = true
   #rbac_aad_managed                   = true
   #key_vault_secrets_provider_enabled = true
   #rbac_aad_admin_group_object_ids = [azuread_group.aks.object_id]
-<<<<<<< HEAD
-  #azurerm_private_dns_zone_name = azurerm_private_dns_zone.aks.name
-  #private_dns_zone_id           = azurerm_private_dns_zone.aks.id
-  private_cluster_enabled        = true
-  azurerm_user_assigned_identity = data.azurerm_user_assigned_identity.aks.id
-=======
   azurerm_private_dns_zone_name = azurerm_private_dns_zone.aks.name
   private_dns_zone_id           = azurerm_private_dns_zone.aks.id
+ 
+#  azurerm_private_dns_zone_name = azurerm_private_dns_zone.aks.name
+#  private_dns_zone_id           = azurerm_private_dns_zone.aks.id
   private_cluster_enabled       = true
-  
->>>>>>> 6c8a56e (telefonica)
+  #public_ssh_key = "~/.ssh/id_rsa.pub"
+/* >>>>>>> 6c8a56e (telefonica) */
 
   # Service Principal for aks 
   /* client_id     = var.client_id
@@ -218,13 +242,7 @@ module "aks" {
   network_plugin    = "kubenet"
   network_policy    = "calico"
   load_balancer_sku = "standard"
-<<<<<<< HEAD
   outbound_type     = var.outbound_type
-
-=======
-  outbound_type = var.outbound_type
->>>>>>> 6c8a56e (telefonica)
-
   
   only_critical_addons_enabled = false
 
@@ -267,6 +285,8 @@ module "aks" {
   }
 
   depends_on = [
+    azurerm_private_dns_zone_virtual_network_link.main,
+    azurerm_private_dns_zone.aks,
     data.azurerm_user_assigned_identity.aks,
     data.azurerm_resource_group.main,
     data.azurerm_subnet.main,

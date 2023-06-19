@@ -65,11 +65,9 @@ variable "client_id" {
 
 variable "client_secret" {
   default = "Wqm8Q~G2~kovVloBrAtg1JmzbfYUIb-MjZpqTa-9"
+}
 <<<<<<< HEAD
 } */
-=======
-}
->>>>>>> 6c8a56e (telefonica)
 
 variable "outbound_type" {
   description = <<EOT

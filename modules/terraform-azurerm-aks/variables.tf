@@ -766,3 +766,7 @@ variable "client_secret" {
 variable "azurerm_user_assigned_identity" {
 
 }
+
+/* variable "dns_prefix" {
+  default = null
+} */

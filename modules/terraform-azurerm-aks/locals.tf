@@ -36,12 +36,13 @@ locals {
   default_tags = {
     Environment          = var.environment
     ManagedBy            = "Terraform"
-    SolutionName         = "Azure Caf AKS Module"
+    /* SolutionName         = "Azure Caf AKS Module"
     Version              = var.solution_version
     DevOpsTeam           = "SoftwareOne DevOps Team"
     SolutionDevelopers   = "Rosthan.silva@softwareone.com"
     Location             = var.location
-    SolutionRepo         = "tf-caf-az-k8s-mod"
+    SolutionRepo         = "tf-caf-az-k8s-mod" */
+    idorcamento = "ID000006"
     Departament          = var.departament
     DepartamentPrincipal = var.departament_principal
     CostCentre           = var.costcentre

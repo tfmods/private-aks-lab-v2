@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ldap-auth
+  namespace: backnet-cloud-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ldap-auth
+  template:
+    metadata:
+      labels:
+        app: ldap-auth
+    spec:
+      containers:
+      - name: ldap-auth
+        image: registry.terra.com/nginx-ldap-auth-daemon:latestpy3
+        ports:
+        - containerPort: 8888

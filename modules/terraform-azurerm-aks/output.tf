@@ -76,3 +76,8 @@ output "kube_config" {
   sensitive = true
 }
 
+output "kube_node_key" {
+  value = tls_private_key.main[0].public_key_openssh
+
+  sensitive = true
+}

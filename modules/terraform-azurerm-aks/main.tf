@@ -75,11 +75,12 @@ resource "azurerm_kubernetes_cluster" "main" {
   name                = local.names.aks
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
-  dns_prefix          = var.private_cluster_enabled == true ? local.names.aks : null
+  #dns_prefix          = var.dns_prefix == null ? local.names.aks : null
+  
   kubernetes_version  = var.orchestrator_version != data.azurerm_kubernetes_service_versions.main.latest_version ? var.orchestrator_version : data.azurerm_kubernetes_service_versions.main.latest_version
   node_resource_group = "${local.names.aks}-nrg"
 
-  #dns_prefix_private_cluster = var.private_cluster_enabled == false ? "${local.names.aks}" : null
+  dns_prefix_private_cluster = var.private_cluster_enabled != false ? "${local.names.aks}" : null
 
   automatic_channel_upgrade       = var.automatic_channel_upgrade
   api_server_authorized_ip_ranges = var.api_server_authorized_ip_ranges
@@ -147,6 +148,13 @@ resource "azurerm_kubernetes_cluster" "main" {
   http_proxy_config {
     http_proxy = "http://10.253.126.72:3128/"
     https_proxy = "http://10.253.126.72:3128/"
+    
+    no_proxy = ["localhost",
+    "127.0.0.1", 
+    "aks-dev-tbd-eastus2-01.privatelink.eastus2.azmk8s.io",
+    "http://aks-dev-tbd-eastus2-01.privatelink.eastus2.azmk8s.io"
+    ]
+    trusted_ca = null
     
   } 
 

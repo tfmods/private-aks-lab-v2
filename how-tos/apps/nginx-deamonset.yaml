@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nginx
+  namespace: backnet-cloud-service
+  labels:
+    k8s-app: nginx
+spec:
+  selector:
+    matchLabels:
+      name: nginx
+  template:
+    metadata:
+      labels:
+        name: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:stable-alpine
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: nginx-config
+        mountPath: /etc/nginx
+        - name: tls-certs
+        mountPath: /etc/tls-certs
+        dnsPolicy: ClusterFirst
+      volumes:
+          - name: nginx-config
+            configMap:
+              name: nginx-config
+          - name: tls-certs
+            secret:
+              secretName: terra-certs-2023-2

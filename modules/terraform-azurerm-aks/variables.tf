@@ -770,3 +770,9 @@ variable "azurerm_user_assigned_identity" {
 /* variable "dns_prefix" {
   default = null
 } */
+
+
+variable "gateway_id" {
+  type = string
+  default = null
+}

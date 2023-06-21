@@ -1,0 +1,9 @@
+app_gw_rg: rg-network-tbd-eastus2-01
+aks_name: aks-dev-tbd-eastus2-01
+pip_name: dev-tbd-appgw-pip-eastus2-01
+appgw_vnet_name: vn-tbd-eastus2
+appgw_snet_name: AppGw
+location: eastus2
+appgw_name: dev-appgw-tbd-eastus2-01
+waf_policy_name: dev-waf-policy-tbd-eastus2-01
+aks_rg_name: rg-dsv-aks

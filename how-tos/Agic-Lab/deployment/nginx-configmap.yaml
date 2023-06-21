@@ -1,0 +1,1500 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: backnet-cloud-service
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: backnet-cloud-service
+data:
+  nginx.conf: |
+    worker_processes 5;
+    events {
+    }
+    http {
+      ## Compression
+      gzip              on;
+      gzip_buffers      16 8k;
+      gzip_comp_level   6;
+      gzip_http_version 1.0;
+      gzip_min_length   0;
+      gzip_types        application/x-javascript application/json text/xml text/plain text/css image/x-icon application/x-perl application/x-httpd-cgi application/xml;
+      gzip_vary         on;
+      gzip_proxied      any;
+
+      ##
+      # SSL settings
+      ##
+      ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+      ssl_prefer_server_ciphers on;
+      ssl_ciphers "ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS";
+      ssl_dhparam /etc/tls-certs/DHPARAMS.pem;
+      ssl_session_cache shared:SSL:32m;
+      ssl_session_timeout 15m;
+      ssl_buffer_size 8k;
+      #ssl_session_ticket_key /etc/nginx/ticket.key;
+      # OCSP Stapling
+      ssl_stapling on;
+      ssl_stapling_verify on;
+      resolver 10.224.224.1 10.224.225.1;
+
+      # authentication cache
+      proxy_cache_path /cache/ keys_zone=auth_cache:10m;
+
+      # Proxy
+      proxy_max_temp_file_size    0;
+      proxy_connect_timeout      1d;
+      proxy_send_timeout         1d;
+      proxy_read_timeout         1d;
+      proxy_buffer_size          4k;
+      proxy_buffers              4 32k;
+      proxy_busy_buffers_size    64k;
+      proxy_temp_file_write_size 64k;
+      proxy_intercept_errors     on;
+      proxy_next_upstream        off;
+
+      # Log
+      log_format json_combined escape=json '{ "time_local": "$time_local", '
+                 '"remote_addr": "$remote_addr", '
+                 '"remote_user": "$remote_user", '
+                 '"request": "$request", '
+                 '"status": "$status", '
+                 '"body_bytes_sent": "$body_bytes_sent", '
+                 '"request_time": "$request_time", '
+                 '"http_referrer": "$http_referer", '
+                 '"http_user_agent": "$http_user_agent", '
+                 '"http_x_forwarded_for": "$proxy_add_x_forwarded_for", '
+                 '"http_x_forwarded_proto": "$scheme"'
+                 '}';
+      access_log  /var/log/nginx/access.log json_combined;
+
+      upstream verdaccio {
+        server verdaccio.verdaccio.svc.cluster.local:4873 max_fails=3 fail_timeout=60s;
+      }
+      upstream minio {
+        server minio-service.minio.svc.cluster.local:9000 max_fails=3 fail_timeout=60s;
+      }
+      upstream alertmanager-k8s {
+        server alertmanager.monitoring.svc.cluster.local:9093 max_fails=3 fail_timeout=60s;
+      }
+      upstream prometheus-k8s {
+        server prometheus-service.monitoring.svc.cluster.local:8080 max_fails=3 fail_timeout=60s;
+      }
+      upstream kafka-k8s {
+        server kafka-manager.kafka.svc.cluster.local:80 max_fails=3 fail_timeout=60s;
+      }
+      upstream ganesha-hlg {
+        server ganesha-backend.hlg-terratv.svc.cluster.local:9001 max_fails=3 fail_timeout=60s;
+      }
+      upstream renderer-hlg {
+        server renderer.hlg-xact.svc.cluster.local:9000 max_fails=3 fail_timeout=60s;
+      }
+      upstream croupier-hlg {
+        server croupier.hlg-xact.svc.cluster.local:9000 max_fails=3 fail_timeout=60s;
+      }
+      upstream montador-hlg {
+        server montador.hlg-xact.svc.cluster.local:9000 max_fails=3 fail_timeout=60s;
+      }
+      #upstream dashboard4p {
+        #server es4p.tpn.terra.com:443 max_fails=3 fail_timeout=60s;
+      #  server grafana4p.hlg-billing4p.svc.cluster.local:3000 max_fails=3 fail_timeout=60s;
+      #}
+      upstream servicos-hlg {
+        server sva-backend.hlg-sva-backend.svc.cluster.local:9001 max_fails=3 fail_timeout=60s;
+      }
+      upstream elk-svc {
+        server elk-svc-es-http.elastic-system.svc.cluster.local:9200 max_fails=3 fail_timeout=60s;
+      }
+      upstream kibana-svc {
+        server elk-svc-kb-http.elastic-system.svc.cluster.local:5601 max_fails=3 fail_timeout=60s;
+      }
+      upstream minhasenha {
+        server minha-senha.minha-senha.svc.cluster.local:80 max_fails=3 fail_timeout=60s;
+      }
+      upstream cms-adm {
+        server cms.cms.svc.cluster.local:8888 max_fails=3 fail_timeout=60s;
+        keepalive 2048;
+        keepalive_requests 1024;
+        keepalive_timeout 6h;
+      }
+      upstream hlg-ilive {
+        server ilive.ilive-hlg.svc.cluster.local:3000 max_fails=3 fail_timeout=60s;
+      }
+      upstream ilive {
+        server ilive.ilive-prd.svc.cluster.local:3000 max_fails=3 fail_timeout=60s;
+      }
+      upstream nexus-repo {
+        server nexus.nexus.svc.cluster.local:8081 max_fails=3 fail_timeout=60s;
+      }
+      upstream musa-hlg {
+        server musa-adm.musa-adm-hlg.svc.cluster.local:8080 max_fails=3 fail_timeout=60s;
+      }
+      upstream musa {
+        server musa-adm.musa-adm-prd.svc.cluster.local:8080 max_fails=3 fail_timeout=60s;
+      }
+      upstream navbar-hlg {
+        server navbar-adm.navbar-adm-hlg.svc.cluster.local:8080 max_fails=3 fail_timeout=60s;
+      }
+      upstream navbar {
+        server navbar-adm.navbar-adm-prd.svc.cluster.local:8080 max_fails=3 fail_timeout=60s;
+      }
+      upstream sonarqube {
+        server sonarqube.sonarqube.svc.cluster.local:9000 max_fails=3 fail_timeout=60s;
+      }
+      upstream fgc {
+        server fgm.fgm.svc.cluster.local:8000 max_fails=3 fail_timeout=60s;
+      }
+      upstream cengine {
+        server nginx-web-cengine-prd.prd-web-cengine.svc.cluster.local:80 max_fails=3 fail_timeout=60s;
+      }
+      upstream painelmaiorista-hlg {
+        server painel-maiorista.hlg-painel-maiorista.svc.cluster.local:5000 max_fails=3 fail_timeout=60s;
+      }
+      upstream dsv-hermes-api {
+        server hermes-api-service-dsv.hermes-dsv.svc.cluster.local:8000 max_fails=3 fail_timeout=60s;
+        #server hermes-api-nginx-service-dsv.hermes-dsv.svc.cluster.local:8000 max_fails=3 fail_timeout=60s;
+      }
+      upstream dsv-hermes-frontend {
+        server hermes-frontend-nginx-service-dsv.hermes-dsv.svc.cluster.local:8000 max_fails=3 fail_timeout=60s;
+      }
+      upstream qa-hermes-frontend {
+        server hermes-frontend-nginx-service-qa.hermes-qa.svc.cluster.local:8000 max_fails=3 fail_timeout=60s;
+      }
+      upstream qa-hermes-api {
+         server hermes-api-service-qa.hermes-qa.svc.cluster.local:8000 max_fails=3 fail_timeout=60s;
+         #server hermes-api-nginx-service-qa.hermes-qa.svc.cluster.local:8000 max_fails=3 fail_timeout=60s;
+      }
+      upstream hlg-hermes-frontend {
+        server hermes-frontend-nginx-service-hlg.hermes-hlg.svc.cluster.local:8000 max_fails=3 fail_timeout=60s;
+      }
+      upstream hlg-hermes-api {
+        server hermes-api-service-hlg.hermes-hlg.svc.cluster.local:8000 max_fails=3 fail_timeout=60s;
+        #server hermes-api-nginx-service-hlg.hermes-hlg.svc.cluster.local:8000 max_fails=3 fail_timeout=60s;
+      }
+      upstream hermes-frontend {
+        server hermes-frontend-nginx-service-prd.hermes-prd.svc.cluster.local:8000 max_fails=3 fail_timeout=60s;
+      }
+      upstream hermes-api {
+        server hermes-api-service-prd.hermes-prd.svc.cluster.local:8000 max_fails=3 fail_timeout=60s;
+      }
+      upstream realtime-consumer {
+        server realtime-consumer-service-hlg.realtime-hlg.svc.cluster.local:9000 max_fails=3 fail_timeout=60s;
+      }
+      upstream uptime-kuma {
+        server uptime-kuma.uptime-kuma.svc.cluster.local:3001 max_fails=3 fail_timeout=60s;
+      }
+           
+      server { 
+        ###############
+        # http -> https
+        ###############
+        listen 80 default_server;
+        server_name _;
+        location / {
+            return 301 https://$http_host$request_uri;
+        }
+      }
+
+      server {
+        server_name minio-tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/TERRA.key;
+        ssl_trusted_certificate /etc/tls-certs/FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        location / {
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://minio;
+          proxy_redirect   default;
+        }
+      }
+
+      server {
+        server_name minio.tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        location / {
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://minio;
+          proxy_redirect   default;
+        }
+      }
+
+      server {
+        server_name npm-registry.terra.com;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/TERRA.key;
+        ssl_trusted_certificate /etc/tls-certs/FULLCHAIN.pem;
+
+        location / {
+          client_max_body_size 500M;
+          #add_header strict-transport-security 'max-age=90';
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://verdaccio;
+          proxy_redirect   default;
+        }
+      }
+
+     server {
+        server_name npm-registry.tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        location / {
+          client_max_body_size 500M;
+          #add_header strict-transport-security 'max-age=90';
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://verdaccio;
+          proxy_redirect   default;
+        }
+      }
+
+      server {
+        server_name alertmanager-k8s.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/TERRA.key;
+        ssl_trusted_certificate /etc/tls-certs/FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        include IDC-ldap-credentials.inc;
+
+        location / {
+          
+          # require authentication
+          auth_request /idc-auth-proxy;
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://alertmanager-k8s;
+          proxy_redirect   default;
+        }
+      }
+      server {
+        server_name prometheus-k8s.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/TERRA.key;
+        ssl_trusted_certificate /etc/tls-certs/FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        include IDC-ldap-credentials.inc;
+
+        location / {
+          
+          # require authentication
+          auth_request /idc-auth-proxy;
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://prometheus-k8s;
+          proxy_redirect   default;
+        }
+      }
+      server {
+        server_name kafka-k8s.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/TERRA.key;
+        ssl_trusted_certificate /etc/tls-certs/FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        include IDC-ldap-credentials.inc;
+
+        location / {
+          
+          # require authentication
+          auth_request /idc-auth-proxy;
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://kafka-k8s;
+          proxy_redirect   default;
+        }
+      }
+
+      server {
+        server_name ganesha-hlg.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/TERRA.key;
+        ssl_trusted_certificate /etc/tls-certs/FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        location / {
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://ganesha-hlg;
+          proxy_redirect   default;
+        }
+      }
+
+      server {
+        server_name renderer-hlg.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/TERRA.key;
+        ssl_trusted_certificate /etc/tls-certs/FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        location / {
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://renderer-hlg;
+          proxy_redirect   default;
+        }
+      }
+
+      server {
+        server_name croupier-hlg.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/TERRA.key;
+        ssl_trusted_certificate /etc/tls-certs/FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        location / {
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://croupier-hlg;
+          proxy_redirect   default;
+        }
+      }
+
+      server {
+        server_name montador-hlg.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/TERRA.key;
+        ssl_trusted_certificate /etc/tls-certs/FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        location / {
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://montador-hlg;
+          proxy_redirect   default;
+        }
+      }
+
+      server {
+        server_name servicos-hlg.tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        location / {
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://servicos-hlg;
+          proxy_redirect   default;
+        }
+      }
+
+     server {
+        server_name dashboard4p.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/TERRA.key;
+        ssl_trusted_certificate /etc/tls-certs/FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        include REDECORP-ldap-credentials.inc;
+
+        location / {
+          
+          # require authentication
+          auth_request /redecorp-auth-proxy;
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       https://dashboard4p;
+          proxy_redirect   default;
+        }
+      }
+
+      # SonarQube
+      server {
+        server_name sonarqube.tpn.terra.com;
+        #listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        location / {
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://sonarqube;
+          proxy_redirect   default;
+        }
+      }
+
+      # Nexus mvn e pip repo
+      server {
+        server_name nexus-repo.tpn.terra.com;
+        #listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        location / {
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://nexus-repo;
+          proxy_redirect   default;
+        }
+      }
+      
+      # musa adm homologacao
+      server {
+        server_name musa-hlg.tpn.terra.com;
+        #listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+        
+        location / {
+          return 301 https://musa-hlg.tpn.terra.com/musa;
+        }
+        
+        location /musa {
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://musa-hlg;
+          proxy_redirect   default;
+        }
+      }
+      
+      # musa adm producao
+      server {
+        server_name musa.tpn.terra.com musa-adm.terra.com.br;
+        #listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+        
+        location / {
+          return 301 https://musa.tpn.terra.com/musa;
+        }
+
+        location /musa {
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://musa;
+          proxy_redirect   default;
+        }
+      }
+      
+      # navbar adm homologacao
+      server {
+        server_name navbar-hlg.tpn.terra.com;
+        #listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+        
+        location / {
+          return 301 https://navbar-hlg.tpn.terra.com/navigation;
+        }
+
+        location /navigation {
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://navbar-hlg;
+          proxy_redirect   default;
+        }
+      }
+      
+      # navbar adm producao
+      server {
+        server_name navbar.tpn.terra.com navbar-adm.terra.com.br navbar.adm.terra.com.br;
+        #listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+        
+        location / {
+          return 301 https://navbar.tpn.terra.com/navigation;
+        }
+
+        location /navigation {
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://navbar;
+          proxy_redirect   default;
+        }
+      }
+
+      # ilive hlg
+      server {
+        server_name hlg-ilive.tpn.terra.com;
+        #listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        include REDECORP-ldap-credentials.inc;
+
+        location / {
+
+          # require authentication
+          auth_request /redecorp-auth-proxy;
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://hlg-ilive;
+          proxy_redirect   default;
+        }
+      }
+      
+      # ilive producao
+      server {
+        server_name ilive.tpn.terra.com;
+        #listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        include REDECORP-ldap-credentials.inc;
+
+        location /health {
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://ilive;
+          proxy_redirect   default;
+        }
+        
+        location / {
+
+          # require authentication
+          auth_request /redecorp-auth-proxy;
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://ilive;
+          proxy_redirect   default;
+        }
+      }
+      
+      # painelmaiorista-hlg
+      server {
+        server_name hlg-painelmayorista.tpn.terra.com hlg-painelmayorista-pe.tpn.terra.com hlg-painelmayorista-co.tpn.terra.com;
+        #listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        location /health {
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://painelmaiorista-hlg;
+          proxy_redirect   default;
+        }
+        
+        location / {
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://painelmaiorista-hlg;
+          proxy_redirect   default;
+        }
+      }
+      
+      #FGC
+      # ilive producao
+      server {
+        server_name fgc.tpn.terra.com;
+        #listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        #include REDECORP-ldap-credentials.inc;
+
+        location /health {
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://fgc;
+          proxy_redirect   default;
+        }
+        
+        location / {
+
+          # require authentication
+          #auth_request /redecorp-auth-proxy;
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://fgc;
+          proxy_redirect   default;
+        }
+      }
+      
+      # WEB-CENGINE
+      server {
+        server_name cengine.tpn.terra.com;
+        #listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+     
+        location / {
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://cengine;
+          proxy_redirect   default;
+        }
+        location /cengine/streamopta/srv {
+          rewrite ^/cengine/streamopta/srv(.*) /streamopta/service$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /cengine/igniter/ {
+          rewrite ^/cengine/igniter/(.*) /igniter/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /igniter/ {
+          rewrite ^/igniter/(.*) /igniter/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /cengine/includer/ {
+          rewrite ^/cengine/includer/(.*) /includer/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /cengine/xact/includer/ {
+          rewrite ^/cengine/xact/includer/(.*) /includer/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /xact/includer/ {
+          rewrite ^/xact/includer/(.*) /includer/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /includer/ {
+          rewrite ^/includer/(.*) /includer/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /cengine/tagman/ {
+          rewrite ^/cengine/tagman/(.*) /tagmanfe/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /tagman/ {
+          rewrite ^/tagman/(.*) /tagmanfe/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /cengine/sitemap-live/ {
+          rewrite ^/cengine/sitemap-live/(.*) /sitemap-live/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /sitemap-live/ {
+          rewrite ^/sitemap-live/(.*) /sitemap-live/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /cengine/ilive/ {
+          rewrite ^/cengine/ilive/(.*) /ilive-api/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /ilive/ {
+          rewrite ^/ilive/(.*) /ilive-api/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /cengine/datetime/ { 
+          rewrite ^/cengine/datetime/(.*) /datetime/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /datetime/ {
+          rewrite ^/datetime/(.*) /datetime/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;    
+        }
+        location /cengine/musa-api/ { 
+          rewrite ^/cengine/musa-api/(.*) /musa-api/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /musa-api/ {
+          rewrite ^/musa-api/(.*) /musa-api/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /cengine/musa-api-light/ {
+          rewrite ^/cengine/musa-api-light/(.*) /musa-api-light/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /musa-api-light/ {
+          rewrite ^/musa-api-light/(.*) /musa-api-light/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /cengine/musa-cards/ {
+          rewrite ^/cengine/musa-cards/(.*) /musa-cards/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /musa-cards/ {
+          rewrite ^/musa-cards/(.*) /musa-cards/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;        
+        }
+        location /cengine/musa-soccer/ {
+          rewrite ^/cengine/musa-soccer/(.*) /musa-soccer/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /musa-soccer/ {
+          rewrite ^/musa-soccer/(.*) /musa-soccer/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;           
+        }
+        location /cengine/horoscopo/ {
+          rewrite ^/cengine/horoscopo/(.*) /horoscopo/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;
+        }
+        location /horoscopo/ {
+          rewrite ^/horoscopo/(.*) /horoscopo/$1 break;
+          proxy_set_header   Host             "api.terra.com";
+          proxy_pass http://api.terra.com;    
+        }
+      }
+
+      server {
+        server_name elk-svc.tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        include IDC-ldap-credentials.inc;
+
+        location / {
+          # require authentication
+          #auth_request /idc-auth-proxy;
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       https://elk-svc;
+          proxy_redirect   default;
+        }
+      }
+
+      server {
+        server_name kibana-svc.tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        include IDC-ldap-credentials.inc;
+
+        location / {
+          # require authentication
+          #auth_request /idc-auth-proxy;
+
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       https://kibana-svc;
+          proxy_redirect   default;
+        }
+      }
+
+      server {
+        server_name minhasenha.tpn.terra.com;
+        #listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        location / {
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://minhasenha;
+          proxy_redirect   default;
+        }
+      }
+
+      # CMS
+      server {
+        server_name cms.tpn.terra.com;
+        #listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        proxy_buffering off;
+
+        location / {
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+
+          proxy_pass       http://cms-adm;
+          proxy_redirect   default;
+        }
+      }         
+      server {
+        server_name cms.tpn.terra.com;
+        listen 80;
+        location / {
+            return 301 https://cms.tpn.terra.com$request_uri;
+        }
+      }
+
+      ### Redirect minhasenha.corp.terra.com --> minhasenha.tpn.terra.com
+      server {
+        server_name minhasenha.corp.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+        location / {
+            return 301 https://minhasenha.tpn.terra.com$request_uri;
+        }
+      }
+      server {
+        server_name micontrasena.corp.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+        location / {
+            return 301 https://minhasenha.tpn.terra.com$request_uri;
+        }
+      }
+      server {
+        server_name mypassword.corp.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+        location / {
+            return 301 https://minhasenha.tpn.terra.com$request_uri;
+        }
+      }
+      
+      # Hermes inicio ambiente
+      # dsv-hermes-api
+      server {
+        server_name dsv-hermes-api.tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+
+        ignore_invalid_headers off;
+        #client_max_body_size 150M;
+        proxy_buffering off;
+
+        location / {
+          client_max_body_size 150M;
+          client_body_timeout 300s;
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          proxy_pass       http://dsv-hermes-api;
+          proxy_redirect   default;
+        }
+      }      
+      
+      # dsv-hermes-frontend
+      server {
+        server_name dsv-hermes-frontend.tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+        ignore_invalid_headers off;
+        #client_max_body_size 0;
+        proxy_buffering off;
+        location / {
+          client_body_timeout 300s;
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_pass       http://dsv-hermes-frontend;
+          proxy_redirect   default;
+        }
+      }        
+      
+      # Hermes QA
+      server {
+        server_name qa-hermes-frontend.tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+        ignore_invalid_headers off;
+        #client_max_body_size 0;
+        proxy_buffering off;
+        location / {
+          client_body_timeout 300s;
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_pass       http://qa-hermes-frontend;
+          proxy_redirect   default;
+        }
+      }   
+      
+      # Hermes QA API
+      server {
+        server_name qa-hermes-api.tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+        ignore_invalid_headers off;
+        #client_max_body_size 0;
+        proxy_buffering off;
+        location / {
+          client_max_body_size 150M;
+          client_body_timeout 300s;
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_pass       http://qa-hermes-api;
+          proxy_redirect   default;
+        }
+      }  
+      
+      # Hermes HLG
+      server {
+        server_name hlg-hermes-frontend.tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+        ignore_invalid_headers off;
+        #client_max_body_size 0;
+        proxy_buffering off;
+        location / {
+          client_body_timeout 300s;
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_pass       http://hlg-hermes-frontend;
+          proxy_redirect   default;
+        }
+      }     
+      
+      # Hermes HLG API
+      server {
+        server_name hlg-hermes-api.tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+        ignore_invalid_headers off;
+        #client_max_body_size 0;
+        proxy_buffering off;
+        location / {
+          client_max_body_size 150M;
+          client_body_timeout 300s;
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_pass       http://hlg-hermes-api;
+          proxy_redirect   default;
+        }
+      }
+      
+      #Hermes frontend producao
+      server {
+        server_name hermes.tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+        ignore_invalid_headers off;
+        #client_max_body_size 0;
+        proxy_buffering off;
+        location / {
+          client_body_timeout 300s;
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_pass       http://hermes-frontend;
+          proxy_redirect   default;
+        }
+      }
+      
+      # Hermes API producao
+      server {
+        server_name hermes-api.tpn.terra.com;
+        listen 80;
+        listen 443 http2 ssl;
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+        ignore_invalid_headers off;
+        #client_max_body_size 0;
+        proxy_buffering off;
+        location / {
+          client_max_body_size 150M;
+          client_body_timeout 300s;
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_pass       http://hermes-api;
+          proxy_redirect   default;
+        }
+      }
+      
+      # Hermes fim ambiente 
+      # realtime-consumer
+      server {
+        server_name rt-hlg.tpn.terra.com;
+        #listen 80 default_server;
+        listen 443 http2 ssl;
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+        
+        location / {
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header Host $http_host;
+          proxy_set_header Connection '';
+          proxy_hide_header Etag;
+          proxy_http_version 1.1;
+          proxy_buffering off;
+          proxy_cache off;        
+          chunked_transfer_encoding off;
+          proxy_read_timeout 12h;
+          proxy_pass http://realtime-consumer;
+        }
+      }
+      
+      # Uptime-Kuma
+      server {
+        server_name uptime-kuma.tpn.terra.com;
+        #listen 80;
+        listen 443 http2 ssl;
+        ssl_certificate         /etc/tls-certs/TPN_CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/STAR.TPN.TERRA.COM.key;
+        ssl_trusted_certificate /etc/tls-certs/TPN_FULLCHAIN.pem;
+        ignore_invalid_headers off;
+        client_max_body_size 0;
+        
+        location / {
+          proxy_request_buffering off;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+          proxy_pass       http://uptime-kuma;
+          proxy_redirect   default;
+        }
+      }
+      
+      ###
+      server {
+        #########
+        # default
+        #########
+        server_name _;
+        listen 443 http2 ssl;
+
+        ssl_certificate         /etc/tls-certs/CHAIN.pem;
+        ssl_certificate_key     /etc/tls-certs/TERRA.key;
+        ssl_trusted_certificate /etc/tls-certs/FULLCHAIN.pem;
+
+        location / {
+            return 403;
+        }
+      }
+    }
+
+  IDC-ldap-credentials.inc: |
+    location = /idc-auth-proxy {
+         internal;
+
+         proxy_pass http://ldap-auth.backnet-cloud-service.svc.cluster.local:8888;
+
+         proxy_pass_request_body off;
+         proxy_set_header Content-Length "";
+
+         #proxy_cache auth_cache; # Must match the name in the proxy_cache_path directive above
+         #proxy_cache_valid 200 10m;
+
+         # URL and port for connecting to the LDAP server
+         proxy_set_header X-Ldap-URL "ldap://idc-dc01-mia.tpn.terra.com/";
+
+         # Negotiate a TLS-enabled (STARTTLS) connection before sending credentials
+         proxy_set_header X-Ldap-Starttls "false";
+
+         # Base DN
+         proxy_set_header X-Ldap-BaseDN "DC=idc,DC=tpn,DC=terra,DC=com";
+
+         # Bind DN
+         proxy_set_header X-Ldap-BindDN "CN=ldapproxy,CN=Users,DC=idc,DC=tpn,DC=terra,DC=com";
+
+         # Bind password
+         proxy_set_header X-Ldap-BindPass "Zb9GFmac";
+
+         # AD user mapping
+         proxy_set_header X-Ldap-Template "(sAMAccountName=%(username)s)";
+         proxy_set_header X-Ldap-DisableReferrals "true";
+    }
+
+  REDECORP-ldap-credentials.inc: |
+    location = /redecorp-auth-proxy {
+         internal;
+
+         proxy_pass http://ldap-auth.backnet-cloud-service.svc.cluster.local:8888;
+
+         proxy_pass_request_body off;
+         proxy_set_header Content-Length "";
+
+         #proxy_cache auth_cache; # Must match the name in the proxy_cache_path directive above
+         #proxy_cache_valid 200 10m;
+
+         # URL and port for connecting to the LDAP server
+         # IPs: 10.238.61.52 / 10.238.61.53 
+         #proxy_set_header X-Ldap-URL "ldap://brnvvdcp028.redecorp.br/";
+         proxy_set_header X-Ldap-URL "ldap://10.238.61.53/";
+         # Negotiate a TLS-enabled (STARTTLS) connection before sending credentials
+         proxy_set_header X-Ldap-Starttls "false";
+
+         # Base DN
+         proxy_set_header X-Ldap-BaseDN "DC=REDECORP,DC=BR";
+
+         # Bind DN
+         proxy_set_header X-Ldap-BindDN "CN=SVC_GITHUB,OU=Usuarios,OU=Administrativo,OU=SP,OU=SP,OU=Corporativo,DC=REDECORP,DC=BR";
+
+         # Bind password
+         proxy_set_header X-Ldap-BindPass "Git2Hub#0Ter1rA!9";
+
+         # AD user mapping
+         proxy_set_header X-Ldap-Template "(sAMAccountName=%(username)s)";
+         proxy_set_header X-Ldap-DisableReferrals "true";
+    }

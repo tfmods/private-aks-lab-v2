@@ -1,0 +1,31 @@
+---
+  - name: "Playing with Ansible and Git"
+    hosts: localhost
+    gather_facts: no
+    vars_files: 
+      - ./vars/vars.yaml
+    tasks:
+
+      - name: "just execute a ls -lrt command"
+        shell: "ls -lrt"
+        register: "output"
+
+      - debug: var=output.stdout_lines
+
+      - name: "Criando pip"
+        shell: az network public-ip create -n "{{ pip_name }}" -g "{{ app_gw_rg }}" -l "{{ location }}" --allocation-method Static --sku Standard
+
+      - name: "Criando Waf Policy"
+        shell: az network application-gateway waf-policy create --name "{{ waf_policy_name }}" --resource-group "{{ app_gw_rg }}"
+
+      - name: "Create application gateway"
+        shell: az network application-gateway create -n "{{ appgw_name }}" -l "{{ location }}" -g "{{ app_gw_rg }}" --sku WAF_v2 --public-ip-address "{{ pip_name }}" --vnet-name "{{ appgw_vnet_name }}" --subnet "{{ appgw_snet_name }}" --priority 100 --waf-policy "{{ waf_policy_name }}"
+    
+      - name: "Get AppGw Id"
+        shell: |
+          az network application-gateway show -n "{{ appgw_name }}" -g "{{ app_gw_rg }}" -o tsv --query "id"
+        register: "id"
+
+      - name: "Enable Application Gateway Ingress Controller on AKS"
+        shell: |
+          az aks enable-addons -n {{ aks_name }} -g {{ aks_rg_name }} -a ingress-appgw --appgw-id {{ id }}

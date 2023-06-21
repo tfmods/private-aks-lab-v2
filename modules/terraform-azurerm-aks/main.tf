@@ -99,6 +99,11 @@ resource "azurerm_kubernetes_cluster" "main" {
     service_cidr       = var.service_cidr
     load_balancer_sku  = var.load_balancer_sku
   }
+  
+  
+  ingress_application_gateway {
+        gateway_id  = var.gateway_id
+    }
 
   default_node_pool {
     name                         = "syspool"

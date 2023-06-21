@@ -206,7 +206,7 @@ module "aks" {
   #rbac_aad_admin_group_object_ids = [azuread_group.aks.object_id]
   azurerm_private_dns_zone_name = azurerm_private_dns_zone.aks.name
   private_dns_zone_id           = azurerm_private_dns_zone.aks.id
- 
+  gateway_id = "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-tbd-appgw-eastus2-01/providers/Microsoft.Network/applicationGateways/appgw-tbd-eastus2-01"
 #  azurerm_private_dns_zone_name = azurerm_private_dns_zone.aks.name
 #  private_dns_zone_id           = azurerm_private_dns_zone.aks.id
   private_cluster_enabled       = true
@@ -229,7 +229,7 @@ module "aks" {
   enable_auto_scaling = "true"
   max_pods            = 100
   #  orchestrator_version = data.azurerm_kubernetes_service_versions.aks.latest_version
-  orchestrator_version = "1.24.9" # Current Default Version
+  orchestrator_version = "1.26.3" # Current Default Version
   vnet_subnet_id       = data.azurerm_subnet.main.id
   vnet_id              = data.azurerm_virtual_network.main.id
   #hub_vnet_id          = module.hub_network.vnet_id

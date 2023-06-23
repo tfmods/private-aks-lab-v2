@@ -772,7 +772,16 @@ variable "azurerm_user_assigned_identity" {
 } */
 
 
-variable "gateway_id" {
-  type = string
+/* variable "gateway_id" {
+  type    = string
   default = null
+} */
+
+
+variable "proxy_url" {
+  description = "Proxy url"
+}
+
+variable "no_proxy" {
+  description = "endereços que não passam pelo proxy"
 }

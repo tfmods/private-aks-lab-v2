@@ -44,4 +44,4 @@ kubectl apply -f nginx-ingress.yaml -n nginx
 
 
 # Getting your Ingress IP
-kubectl get ingress -n nginx
+kubectl get ingress -n ng

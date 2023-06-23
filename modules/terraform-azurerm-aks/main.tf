@@ -1,3 +1,13 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.43.0"
+    }
+  }
+}
+
+
 data "azuread_client_config" "main" {}
 
 data "azurerm_subscription" "main" {}
@@ -76,7 +86,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
   #dns_prefix          = var.dns_prefix == null ? local.names.aks : null
-  
+
   kubernetes_version  = var.orchestrator_version != data.azurerm_kubernetes_service_versions.main.latest_version ? var.orchestrator_version : data.azurerm_kubernetes_service_versions.main.latest_version
   node_resource_group = "${local.names.aks}-nrg"
 
@@ -99,11 +109,11 @@ resource "azurerm_kubernetes_cluster" "main" {
     service_cidr       = var.service_cidr
     load_balancer_sku  = var.load_balancer_sku
   }
-  
-  
-  ingress_application_gateway {
-        gateway_id  = var.gateway_id
-    }
+
+
+  /* ingress_application_gateway {
+    gateway_id = var.gateway_id
+  } */
 
   default_node_pool {
     name                         = "syspool"
@@ -151,17 +161,13 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   http_proxy_config {
-    http_proxy = "http://10.253.126.72:3128/"
-    https_proxy = "http://10.253.126.72:3128/"
-    
-    no_proxy = ["localhost",
-    "127.0.0.1", 
-    "aks-dev-tbd-eastus2-01.privatelink.eastus2.azmk8s.io",
-    "http://aks-dev-tbd-eastus2-01.privatelink.eastus2.azmk8s.io"
-    ]
+    http_proxy  = var.proxy_url
+    https_proxy = var.proxy_url
+
+    no_proxy   = var.no_proxy
     trusted_ca = null
-    
-  } 
+
+  }
 
   /* service_principal {
     client_id     = var.client_id
@@ -217,6 +223,7 @@ resource "azurerm_kubernetes_cluster" "main" {
       default_node_pool[0].node_count,
       default_node_pool[0].tags,
       location,
+      http_proxy_config,
     ]
 
   }

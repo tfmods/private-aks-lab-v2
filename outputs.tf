@@ -25,6 +25,6 @@ output "my_ip" {
 
 
 output "public_key" {
-  value = module.aks.kube_node_key
+  value     = module.aks.kube_node_key
   sensitive = true
 }

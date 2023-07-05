@@ -12,6 +12,7 @@ data "azurerm_resource_group" "main" {
   name     = var.aks_rg_name
   #  location = "eastus2"
 }
+##REVERT
 
 # resource group onde o aks será deployado
 data "azurerm_resource_group" "main_hlg" {

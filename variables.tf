@@ -100,6 +100,18 @@ variable "aks_managed_identity" {
 
 }
 
+variable "aks_managed_identity_hlg" {
+  default     = {}
+  description = "identidade gerenciada para aks - deve ser solicitado ao time de segurança"
+
+}
+
+variable "aks_managed_identity_kv" {
+  default     = {}
+  description = "identidade gerenciada para o aks acessar o key vault"
+
+}
+
 variable "aks_subnet" {
   default     = null
   description = "subnet para deploy de aks privado -  datasource de uma rede criada no azure"
@@ -110,6 +122,10 @@ variable "aks_vnet" {
 }
 
 variable "aks_rg_name" {
+  description = "Nome do rg onde o aks será deployado"
+}
+
+variable "aks_rg_name_hlg" {
   description = "Nome do rg onde o aks será deployado"
 }
 
@@ -178,3 +194,21 @@ variable "kv_subnet_rg" {
 variable "acr_rg_name" {
 
 }
+
+variable "appgw_subnet" {
+
+}
+
+variable "appgw_vnet" {
+
+}
+
+variable "appgw_subnet_rg" {
+
+}
+
+variable "appgw_name" {
+
+}
+
+variable "aks_subnet_hlg" {}

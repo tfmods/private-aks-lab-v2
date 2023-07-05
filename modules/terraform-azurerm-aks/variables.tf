@@ -767,15 +767,15 @@ variable "azurerm_user_assigned_identity" {
 
 }
 
-/* variable "dns_prefix" {
+variable "secret_identity" {
   default = null
-} */
+}
 
 
-/* variable "gateway_id" {
+variable "gateway_id" {
   type    = string
   default = null
-} */
+}
 
 
 variable "proxy_url" {

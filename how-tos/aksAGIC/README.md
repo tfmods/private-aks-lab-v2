@@ -63,11 +63,3 @@ kubectl apply -f nginx-ingress.yaml -n nginx
 # Getting your Ingress IP
 kubectl get ingress -n nginx
 ```
-
-
-## Author
-
-Anderson Soares Lopes
-
-[![GitHub](https://skillicons.dev/icons?i=github)](https://github.com/lopes221)
-[![Linkedin](https://skillicons.dev/icons?i=linkedin)](https://www.linkedin.com/in/andersonsoaresl/)

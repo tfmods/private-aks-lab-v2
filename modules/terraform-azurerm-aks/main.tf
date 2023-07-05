@@ -113,7 +113,7 @@ resource "azurerm_kubernetes_cluster" "main" {
 
   /* ingress_application_gateway {
     gateway_id = var.gateway_id
-  } */
+  }  */
 
   default_node_pool {
     name                         = "syspool"
@@ -186,6 +186,14 @@ resource "azurerm_kubernetes_cluster" "main" {
   azure_policy_enabled = var.azure_policy_enable
 
 
+  /* key_vault_secrets_provider {
+    secret_rotation_enabled = "true"
+    secret_rotation_interval = "5m"
+  
+    /* secret_identity {
+    user_assigned_identity_id = var.azurerm_user_assigned_identity
+    } */
+
 
   /* dynamic "key_management_service" {
     for_each = var.enable_azurerm_key_vault == true ? [1] : []
@@ -223,11 +231,13 @@ resource "azurerm_kubernetes_cluster" "main" {
       default_node_pool[0].node_count,
       default_node_pool[0].tags,
       location,
-      http_proxy_config,
+      http_proxy_config
     ]
 
   }
 }
+
+
 ####     === 
 ##  AKS - NodePool Tool - Module 
 ####     ===

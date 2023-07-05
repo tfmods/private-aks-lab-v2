@@ -13,6 +13,12 @@ data "azurerm_resource_group" "main" {
   #  location = "eastus2"
 }
 
+# resource group onde o aks será deployado
+data "azurerm_resource_group" "main_hlg" {
+  provider = azurerm.main
+  name     = var.aks_rg_name_hlg
+  #  location = "eastus2"
+}
 
 
 /* data "azurerm_resource_group" "links" {
@@ -26,6 +32,12 @@ data "azurerm_user_assigned_identity" "aks" {
   provider            = azurerm.main
   name                = var.aks_managed_identity
   resource_group_name = data.azurerm_resource_group.main.name
+}
+
+data "azurerm_user_assigned_identity" "aks_hlg" {
+  provider            = azurerm.main
+  name                = var.aks_managed_identity_hlg
+  resource_group_name = data.azurerm_resource_group.main_hlg.name
 }
 
 # Get latest kubernetes Version
@@ -43,6 +55,14 @@ data "azurerm_subnet" "main" {
   resource_group_name  = var.aks_network_rg
 }
 
+
+data "azurerm_subnet" "main_hlg" {
+  provider             = azurerm.main
+  name                 = var.aks_subnet_hlg
+  virtual_network_name = var.aks_vnet
+  resource_group_name  = var.aks_network_rg
+}
+
 #TSS SUBNET
 data "azurerm_subnet" "tss" {
   provider             = azurerm.tss
@@ -53,7 +73,7 @@ data "azurerm_subnet" "tss" {
 
 #APPGW_SUBNET
 
-data "azurerm_subnet" "tss" {
+data "azurerm_subnet" "appgw" {
   provider             = azurerm.main
   name                 = var.appgw_subnet
   virtual_network_name = var.appgw_vnet
@@ -66,8 +86,6 @@ data "azurerm_virtual_network" "main" {
   name                = var.aks_vnet
   resource_group_name = var.aks_network_rg
 }
-
-
 
 data "azurerm_virtual_network" "tss" {
   provider            = azurerm.tss
@@ -106,7 +124,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "tss" {
   virtual_network_id    = data.azurerm_virtual_network.tss.id
 }
 
-
 resource "azurerm_private_dns_zone_virtual_network_link" "tcn" {
   #link com terra conections
   provider              = azurerm.tss
@@ -116,6 +133,77 @@ resource "azurerm_private_dns_zone_virtual_network_link" "tcn" {
   virtual_network_id    = data.azurerm_virtual_network.tcn.id
 }
 
+
+module "aks_hlg" {
+  providers                      = { azurerm = azurerm.main }
+  source                         = "./modules/terraform-azurerm-aks"
+  aks_name                       = data.azurerm_user_assigned_identity.aks_hlg.name
+  azurerm_user_assigned_identity = data.azurerm_user_assigned_identity.aks_hlg.id
+  resource_group_name            = data.azurerm_resource_group.main_hlg.name
+  enable_azurerm_key_vault       = false
+  azurerm_private_dns_zone_name  = azurerm_private_dns_zone.aks.name
+  private_dns_zone_id            = azurerm_private_dns_zone.aks.id
+  #gateway_id = "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-tbd-appgw-eastus2-01/providers/Microsoft.Network/applicationGateways/appgw-tbd-eastus2-01"
+  private_cluster_enabled = true
+  #gateway_id = azurerm_application_gateway.appgw.id
+  # If aks ne
+  #Storage Profile deployment
+  storage_profile_enabled                     = true
+  storage_profile_blob_driver_enabled         = true
+  storage_profile_disk_driver_enabled         = true
+  storage_profile_file_driver_enabled         = true
+  storage_profile_snapshot_controller_enabled = true
+  proxy_url                                   = var.proxy_url
+  no_proxy                                    = var.no_proxy
+  availability_zones                          = ["1", ]
+  enable_auto_scaling                         = "true"
+  max_pods                                    = 100
+  #  orchestrator_version = data.azurerm_kubernetes_service_versions.aks.latest_version
+
+  orchestrator_version = "1.26.3" # Current Default Version
+  vnet_subnet_id       = data.azurerm_subnet.main.id
+  vnet_id              = data.azurerm_virtual_network.main.id
+  max_count            = 3
+  min_count            = 1
+  node_count           = 1
+  #enable_log_analytics_workspace = true
+  network_plugin    = "kubenet"
+  network_policy    = "calico"
+  load_balancer_sku = "standard"
+  outbound_type     = var.outbound_type
+
+  only_critical_addons_enabled = false
+
+
+  node_pools = [
+    {
+      name                 = "akshlgnp001"
+      availability_zones   = ["1", "2", "3"]
+      enable_auto_scaling  = true
+      max_pods             = 800
+      orchestrator_version = "1.26.3"
+      priority             = "Regular"
+      max_count            = 5
+      min_count            = 3
+      node_count           = 5
+      vm_size              = "Standard_D4s_v3"
+  }]
+
+  tags = {
+    "ManagedBy" = "Terraform"
+  }
+
+  depends_on = [
+    #azurerm_application_gateway.appgw,
+    azurerm_private_dns_zone_virtual_network_link.main,
+    azurerm_private_dns_zone_virtual_network_link.tss,
+    azurerm_private_dns_zone_virtual_network_link.tcn,
+    azurerm_private_dns_zone.aks,
+    data.azurerm_user_assigned_identity.aks,
+    data.azurerm_resource_group.main,
+    data.azurerm_subnet.main,
+  ]
+}
 
 
 
@@ -132,6 +220,7 @@ module "aks" {
   private_dns_zone_id            = azurerm_private_dns_zone.aks.id
   #gateway_id = "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-tbd-appgw-eastus2-01/providers/Microsoft.Network/applicationGateways/appgw-tbd-eastus2-01"
   private_cluster_enabled = true
+  #gateway_id = azurerm_application_gateway.appgw.id
   # If aks ne
   #Storage Profile deployment
   storage_profile_enabled                     = true
@@ -145,6 +234,7 @@ module "aks" {
   enable_auto_scaling                         = "true"
   max_pods                                    = 100
   #  orchestrator_version = data.azurerm_kubernetes_service_versions.aks.latest_version
+
   orchestrator_version = "1.26.3" # Current Default Version
   vnet_subnet_id       = data.azurerm_subnet.main.id
   vnet_id              = data.azurerm_virtual_network.main.id
@@ -165,7 +255,7 @@ module "aks" {
   }
 
   depends_on = [
-    data.azurerm_private_dns_zone.kv,
+    #azurerm_application_gateway.appgw,
     azurerm_private_dns_zone_virtual_network_link.main,
     azurerm_private_dns_zone_virtual_network_link.tss,
     azurerm_private_dns_zone_virtual_network_link.tcn,
@@ -176,37 +266,43 @@ module "aks" {
   ]
 }
 
-resource "azurerm_public_ip" "main" {
+/* resource "azurerm_public_ip" "appgw" {
   name                = "${var.appgw_name}-pip"
   resource_group_name = data.azurerm_resource_group.main.name
   location            = data.azurerm_resource_group.main.location
   allocation_method   = "Static"
+  sku = "Standard"
 }
 
-resource "azurerm_application_gateway" "network" {
+resource "azurerm_application_gateway" "appgw" {
   name                =  var.appgw_name
   resource_group_name = data.azurerm_resource_group.main.name
   location            = data.azurerm_resource_group.main.location
 
   sku {
-    name     = "Standard_Small"
-    tier     = "Standard"
+    name     = "WAF_v2"
+    tier     = "WAF_v2"
     capacity = 2
   }
 
   gateway_ip_configuration {
     name      = "${var.appgw_name}-ip-configuration"
-    subnet_id = azurerm_subnet.frontend.id
+    subnet_id = data.azurerm_subnet.appgw.id
   }
 
   frontend_port {
-    name = local.frontend_port_name
+    name = local.frontend_port_name_http
+    port = 80
+  }
+  
+  frontend_port {
+    name = local.frontend_port_name_https
     port = 80
   }
 
   frontend_ip_configuration {
     name                 = local.frontend_ip_configuration_name
-    public_ip_address_id = azurerm_public_ip.example.id
+    public_ip_address_id = azurerm_public_ip.appgw.id
   }
 
   backend_address_pool {
@@ -214,19 +310,35 @@ resource "azurerm_application_gateway" "network" {
   }
 
   backend_http_settings {
-    name                  = local.http_setting_name
+    name                  = "${local.http_setting_name}-http"
     cookie_based_affinity = "Disabled"
-    path                  = "/path1/"
+    path                  = "/"
     port                  = 80
     protocol              = "Http"
+    request_timeout       = 60
+  }
+
+  backend_http_settings {
+    name                  = "${local.http_setting_name}-https"
+    cookie_based_affinity = "Disabled"
+    path                  = "/"
+    port                  = 443
+    protocol              = "Https"
     request_timeout       = 60
   }
 
   http_listener {
     name                           = local.listener_name
     frontend_ip_configuration_name = local.frontend_ip_configuration_name
-    frontend_port_name             = local.frontend_port_name
+    frontend_port_name             = local.frontend_port_name_http
     protocol                       = "Http"
+  }
+
+    http_listener {
+    name                           = local.listener_name_s
+    frontend_ip_configuration_name = local.frontend_ip_configuration_name
+    frontend_port_name             = local.frontend_port_name_https
+    protocol                       = "Https"
   }
 
   request_routing_rule {
@@ -235,8 +347,17 @@ resource "azurerm_application_gateway" "network" {
     http_listener_name         = local.listener_name
     backend_address_pool_name  = local.backend_address_pool_name
     backend_http_settings_name = local.http_setting_name
+    priority = "10000"
   }
-}
+
+  waf_configuration {
+    enabled = true
+    firewall_mode = "Prevention"
+    rule_set_version = "3.2"
+  }
+
+} */
+
 
 
 /* resource "null_resource" "lazy-appgw" {
@@ -268,3 +389,47 @@ resource "azurerm_application_gateway" "network" {
     }
   }
 } */
+
+
+/* resource "null_resource" "xpto" {
+  # ...
+  interpreter = ["/bin/bash", "-C"]
+  provisioner "local-exec" {
+    command = ""
+  environment = {
+ 
+    }
+  }
+  
+} */
+
+locals {
+  # Define the path to the directory containing your Terraform files
+  base_dir = path.cwd
+}
+
+data "template_file" "init" {
+  template = file("${path.module}/proxy.sh")
+  vars = {
+    AKS = "${var.aks_managed_identity}"
+    RG  = "${var.aks_rg_name}"
+  }
+}
+
+resource "null_resource" "proxy_tf" {
+
+  triggers = {
+    template = "${data.template_file.init.rendered}"
+  }
+
+
+  provisioner "local-exec" {
+    command = <<EOF
+                ${data.template_file.init.rendered}
+                EOF
+  }
+
+  depends_on = [
+    module.aks,
+  ]
+}

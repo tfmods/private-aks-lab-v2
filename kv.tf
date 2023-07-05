@@ -3,7 +3,7 @@
     kv-dev-tbd-eastus2-01 = "privatelink.vaultcore.azure.net"
   }
 } */
-
+/* 
 resource "azurerm_key_vault" "main" {
   provider                      = azurerm.main
   name                          = var.kv_name
@@ -38,32 +38,7 @@ resource "azurerm_key_vault" "main" {
     default_action = "Deny"
     ip_rules       = local.allowed_ip_ranges
   }
-  /* access_policy {
-  } */
-
-  /* network_acls {
-    default_action             = "Deny"
-    virtual_network_subnet_ids = [data.azurerm_virtual_network.main.id]
-    bypass = None
-  } */
 }
-
-/* resource "azurerm_key_vault_access_policy" "aks" {
-  provider        = azurerm.main
-  key_vault_id    = azurerm_key_vault.main.id
-  tenant_id       = data.azurerm_subscription.main.tenant_id
-  object_id       = data.azurerm_user_assigned_identity.aks.id
-  key_permissions = ["Create", "Get", "List", "Purge", "Recover", ]
-} */
-
-
-
-/* resource "azurerm_key_vault_access_policy" "main" {
- 
-        secret_permissions = ["Get", "List", "Purge", "Recover", "Set"]
-        certificate_permissions = ["Create", "Get", "List", "Purge", "Recover", "Update"]
-  ] */
-
 
 
 resource "azurerm_private_endpoint" "main" {
@@ -99,6 +74,42 @@ data "azurerm_private_dns_zone" "kv" {
   name                = local.private_dns_zones.kv
   resource_group_name = data.azurerm_virtual_network.tss.resource_group_name
 }
+
+
+data "azurerm_user_assigned_identity" "aks-kv" {
+  provider            = azurerm.main
+  name                = var.aks_managed_identity_kv
+  resource_group_name = "aks-dev-tbd-eastus2-01-nrg"
+  depends_on = ["module.aks"]
+}
+
+
+resource "azurerm_key_vault_access_policy" "main" {
+  provider            = azurerm.main
+  depends_on = ["module.aks"]
+
+
+  key_vault_id = azurerm_key_vault.main.id
+  tenant_id    = data.azurerm_client_config.main.tenant_id
+  object_id    = data.azurerm_user_assigned_identity.aks-kv.principal_id
+
+  key_permissions = [
+   "Backup", "Create", "Decrypt", "Delete", "Encrypt", "Get", "Import", "List", "Purge", "Recover", "Restore", "Sign", "UnwrapKey", "Update", "Verify", "WrapKey", "Release", "Rotate", "GetRotationPolicy", "SetRotationPolicy"
+  ]
+
+  certificate_permissions = [
+  "Backup", "Create", "Delete", "DeleteIssuers", "Get", "GetIssuers", "Import", "List", "ListIssuers", "ManageContacts", "ManageIssuers", "Purge", "Recover", "Restore", "SetIssuers", "Update"
+  ]
+  
+  secret_permissions  = [
+    "Backup", "Delete", "Get", "List", "Purge", "Recover", "Restore", "Set"
+  ]
+  storage_permissions = [
+    "Backup", "Delete", "DeleteSAS", "Get", "GetSAS", "List", "ListSAS", "Purge", "Recover", "RegenerateKey", "Restore", "Set", "SetSAS", "Update"
+  ]
+} */
+
+
 
 ## Zona privada do KV 
 

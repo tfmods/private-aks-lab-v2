@@ -1,0 +1,1 @@
+az aks update -n ${AKS} -g ${RG} --http-proxy-config aks-proxy-config-2.json 

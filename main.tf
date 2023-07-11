@@ -162,7 +162,7 @@ module "aks_hlg" {
   #  orchestrator_version = data.azurerm_kubernetes_service_versions.aks.latest_version
 
   orchestrator_version = "1.26.3" # Current Default Version
-  vnet_subnet_id       = data.azurerm_subnet.main.id
+  vnet_subnet_id       = data.azurerm_subnet.main_hlg.id
   vnet_id              = data.azurerm_virtual_network.main.id
   max_count            = 3
   min_count            = 1
@@ -181,7 +181,7 @@ module "aks_hlg" {
       name                 = "akshlgnp001"
       availability_zones   = ["1", "2", "3"]
       enable_auto_scaling  = true
-      max_pods             = 800
+      max_pods             = 250
       orchestrator_version = "1.26.3"
       priority             = "Regular"
       max_count            = 5
@@ -403,7 +403,7 @@ resource "azurerm_application_gateway" "appgw" {
   }
   
 } */
-
+/* 
 locals {
   # Define the path to the directory containing your Terraform files
   base_dir = path.cwd
@@ -433,4 +433,4 @@ resource "null_resource" "proxy_tf" {
   depends_on = [
     module.aks,
   ]
-}
+} */

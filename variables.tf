@@ -209,10 +209,6 @@ variable "appgw_subnet_rg" {
 
 variable "appgw_name" {
 
-<<<<<<< Updated upstream
 }
 
 variable "aks_subnet_hlg" {}
-=======
-}
->>>>>>> Stashed changes

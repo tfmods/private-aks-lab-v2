@@ -19,6 +19,7 @@ locals {
   # Examples: westus, eastus2, westeu, usva, ustx
 
   naming          = "${var.project}-${var.environment}-${var.location}"
+  aks-syspool = "${var.project}-pool"
   aad_group_admin = toset(concat(["var.aad_aks_group_ownners", "data.azuread_client_config.main.object_id"]))
   names = {
     aks = "${var.aks_name}"
@@ -43,9 +44,5 @@ locals {
     Location             = var.location
     SolutionRepo         = "tf-caf-az-k8s-mod" */
     idorcamento          = "ID000006"
-    Departament          = var.departament
-    DepartamentPrincipal = var.departament_principal
-    CostCentre           = var.costcentre
-    Administrator        = var.resource_admin
   }
 }

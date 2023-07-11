@@ -7,6 +7,13 @@ terraform {
   }
 }
 
+resource "random_string" "suffix" {
+  length = 3
+  lower  = true
+  upper = false 
+  special = false
+  numeric = false
+}
 
 data "azuread_client_config" "main" {}
 
@@ -116,7 +123,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   }  */
 
   default_node_pool {
-    name                         = "syspool"
+    name                         = "aksdnp${random_string.suffix.result}"
     vm_size                      = var.vm_size
     zones                        = var.availability_zones
     enable_auto_scaling          = false #var.enable_auto_scaling
@@ -231,7 +238,7 @@ resource "azurerm_kubernetes_cluster" "main" {
       default_node_pool[0].node_count,
       default_node_pool[0].tags,
       location,
-      http_proxy_config
+      #  http_proxy_config
     ]
 
   }

@@ -1,0 +1,351 @@
+[
+  {
+    "aadProfile": null,
+    "addonProfiles": null,
+    "agentPoolProfiles": [
+      {
+        "availabilityZones": [
+          "1"
+        ],
+        "count": 1,
+        "creationData": null,
+        "currentOrchestratorVersion": "1.26.3",
+        "enableAutoScaling": false,
+        "enableEncryptionAtHost": false,
+        "enableFips": false,
+        "enableNodePublicIp": false,
+        "enableUltraSsd": false,
+        "gpuInstanceProfile": null,
+        "hostGroupId": null,
+        "kubeletConfig": null,
+        "kubeletDiskType": "OS",
+        "linuxOsConfig": null,
+        "maxCount": null,
+        "maxPods": 100,
+        "minCount": null,
+        "mode": "System",
+        "name": "aksdnphxa",
+        "nodeImageVersion": "AKSUbuntu-2204gen2containerd-202307.04.0",
+        "nodeLabels": null,
+        "nodePublicIpPrefixId": null,
+        "nodeTaints": null,
+        "orchestratorVersion": "1.26.3",
+        "osDiskSizeGb": 128,
+        "osDiskType": "Managed",
+        "osSku": "Ubuntu",
+        "osType": "Linux",
+        "podSubnetId": null,
+        "powerState": {
+          "code": "Running"
+        },
+        "provisioningState": "Succeeded",
+        "proximityPlacementGroupId": null,
+        "scaleDownMode": "Delete",
+        "scaleSetEvictionPolicy": null,
+        "scaleSetPriority": null,
+        "spotMaxPrice": null,
+        "tags": {
+          "Environment": "test",
+          "ManagedBy": "Terraform",
+          "ResourceName": "aks-hlg-tbd-eastus2-01-default",
+          "idorcamento": "ID000006"
+        },
+        "type": "VirtualMachineScaleSets",
+        "upgradeSettings": {
+          "maxSurge": null
+        },
+        "vmSize": "Standard_D2s_v3",
+        "vnetSubnetId": "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-network-tbd-eastus2-01/providers/Microsoft.Network/virtualNetworks/vn-tbd-eastus2/subnets/snet-tbd-eastus2-005",
+        "workloadRuntime": null
+      }
+    ],
+    "apiServerAccessProfile": {
+      "authorizedIpRanges": null,
+      "disableRunCommand": null,
+      "enablePrivateCluster": true,
+      "enablePrivateClusterPublicFqdn": false,
+      "privateDnsZone": "/subscriptions/2d4a11ab-535f-464e-9bed-fad7b59415bf/resourceGroups/rg-network-tss-eastus2-01/providers/Microsoft.Network/privateDnsZones/privatelink.eastus2.azmk8s.io"
+    },
+    "autoScalerProfile": null,
+    "autoUpgradeProfile": {
+      "upgradeChannel": "none"
+    },
+    "azureMonitorProfile": {
+      "metrics": {
+        "enabled": false,
+        "kubeStateMetrics": null
+      }
+    },
+    "azurePortalFqdn": "552427a32858de5c95d2477fbf03b016-priv.portal.hcp.eastus2.azmk8s.io",
+    "currentKubernetesVersion": "1.26.3",
+    "disableLocalAccounts": false,
+    "diskEncryptionSetId": null,
+    "dnsPrefix": null,
+    "enablePodSecurityPolicy": null,
+    "enableRbac": true,
+    "extendedLocation": null,
+    "fqdn": null,
+    "fqdnSubdomain": "aks-hlg-tbd-eastus2-01",
+    "httpProxyConfig": {
+      "effectiveNoProxy": [
+        "elk-svc.tpn.terra.com",
+        "ilive.tpn.terra.com",
+        "navbar-hlg.tpn.terra.com",
+        "sonarqube.tpn.terra.com",
+        "musa-adm.terra.com.br",
+        "musa.tpn.terra.com",
+        "lb-dsv-azr.tpn.terra.com",
+        "hermes.tpn.terra.com",
+        "npm-registry.terra.com",
+        "navbar.tpn.terra.com",
+        "hlg-painelmayorista-co.tpn.terra.com",
+        "mypassword.corp.terra.com",
+        "hlg-hermes-frontend.tpn.terra.com",
+        "qa-hermes-frontend.tpn.terra.com",
+        "nexus-repo.tpn.terra.com",
+        "http://aks-dev-tbd-eastus2-01.privatelink.eastus2.azmk8s.io",
+        "168.63.129.16",
+        "rt-hlg.tpn.terra.com",
+        "npm-registry.tpn.terra.com",
+        "minio.tpn.terra.com",
+        "qa-hermes-api.tpn.terra.com",
+        "api-priv.terra.com.br",
+        "kibana-svc.tpn.terra.com",
+        "navbar-adm.terra.com.br",
+        "hlg-painelmayorista.tpn.terra.com",
+        "10.225.125.0/25",
+        "prometheus-k8s.terra.com",
+        "api.terra.com",
+        "minio-tpn.terra.com",
+        "hlg-hermes-api.tpn.terra.com",
+        "alertmanager-k8s.terra.com",
+        "montador-hlg.terra.com",
+        "dsv-hermes-frontend.tpn.terra.com",
+        "ganesha-hlg.terra.com",
+        "10.244.0.0/16",
+        "dsv-hermes-api.tpn.terra.com",
+        "servicos-hlg.tpn.terra.com",
+        "fgc.tpn.terra.com",
+        "aks-dev-tbd-eastus2-01.privatelink.eastus2.azmk8s.io",
+        "10.224.234.0/23",
+        "127.0.0.1",
+        "minhasenha.corp.terra.com",
+        "hermes-api.tpn.terra.com",
+        "minhasenha.tpn.terra.com",
+        "169.254.169.254",
+        "navbar.adm.terra.com.br",
+        "cms.tpn.terra.com",
+        "croupier-hlg.terra.com",
+        "10.0.0.0/16",
+        "hlg-painelmayorista-pe.tpn.terra.com",
+        "api-hlg-priv.terra.com.br",
+        "konnectivity",
+        "dashboard4p.terra.com",
+        "cengine.tpn.terra.com",
+        "micontrasena.corp.terra.com",
+        "google.com",
+        "kafka-k8s.terra.com",
+        "localhost",
+        "hlg-ilive.tpn.terra.com",
+        "renderer-hlg.terra.com",
+        "aks-hlg-tbd-eastus2-01.privatelink.eastus2.azmk8s.io",
+        "musa-hlg.tpn.terra.com",
+        "uptime-kuma.tpn.terra.com"
+      ],
+      "httpProxy": "http://10.253.126.72:3128/",
+      "httpsProxy": "http://10.253.126.72:3128/",
+      "noProxy": [
+        "elk-svc.tpn.terra.com",
+        "ilive.tpn.terra.com",
+        "navbar-hlg.tpn.terra.com",
+        "sonarqube.tpn.terra.com",
+        "musa-adm.terra.com.br",
+        "musa.tpn.terra.com",
+        "lb-dsv-azr.tpn.terra.com",
+        "hermes.tpn.terra.com",
+        "npm-registry.terra.com",
+        "navbar.tpn.terra.com",
+        "hlg-painelmayorista-co.tpn.terra.com",
+        "mypassword.corp.terra.com",
+        "hlg-hermes-frontend.tpn.terra.com",
+        "qa-hermes-frontend.tpn.terra.com",
+        "nexus-repo.tpn.terra.com",
+        "http://aks-dev-tbd-eastus2-01.privatelink.eastus2.azmk8s.io",
+        "168.63.129.16",
+        "rt-hlg.tpn.terra.com",
+        "npm-registry.tpn.terra.com",
+        "minio.tpn.terra.com",
+        "qa-hermes-api.tpn.terra.com",
+        "api-priv.terra.com.br",
+        "kibana-svc.tpn.terra.com",
+        "navbar-adm.terra.com.br",
+        "hlg-painelmayorista.tpn.terra.com",
+        "10.225.125.0/25",
+        "prometheus-k8s.terra.com",
+        "api.terra.com",
+        "minio-tpn.terra.com",
+        "hlg-hermes-api.tpn.terra.com",
+        "alertmanager-k8s.terra.com",
+        "montador-hlg.terra.com",
+        "dsv-hermes-frontend.tpn.terra.com",
+        "ganesha-hlg.terra.com",
+        "10.244.0.0/16",
+        "dsv-hermes-api.tpn.terra.com",
+        "servicos-hlg.tpn.terra.com",
+        "fgc.tpn.terra.com",
+        "aks-dev-tbd-eastus2-01.privatelink.eastus2.azmk8s.io",
+        "10.224.234.0/23",
+        "127.0.0.1",
+        "minhasenha.corp.terra.com",
+        "hermes-api.tpn.terra.com",
+        "minhasenha.tpn.terra.com",
+        "169.254.169.254",
+        "navbar.adm.terra.com.br",
+        "cms.tpn.terra.com",
+        "croupier-hlg.terra.com",
+        "10.0.0.0/16",
+        "hlg-painelmayorista-pe.tpn.terra.com",
+        "api-hlg-priv.terra.com.br",
+        "konnectivity",
+        "dashboard4p.terra.com",
+        "cengine.tpn.terra.com",
+        "micontrasena.corp.terra.com",
+        "google.com",
+        "kafka-k8s.terra.com",
+        "localhost",
+        "hlg-ilive.tpn.terra.com",
+        "renderer-hlg.terra.com",
+        "aks-hlg-tbd-eastus2-01.privatelink.eastus2.azmk8s.io",
+        "musa-hlg.tpn.terra.com",
+        "uptime-kuma.tpn.terra.com"
+      ],
+      "trustedCa": null
+    },
+    "id": "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourcegroups/rg-hlg-aks/providers/Microsoft.ContainerService/managedClusters/aks-hlg-tbd-eastus2-01",
+    "identity": {
+      "principalId": null,
+      "tenantId": null,
+      "type": "UserAssigned",
+      "userAssignedIdentities": {
+        "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-hlg-aks/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aks-hlg-tbd-eastus2-01": {
+          "clientId": "2c83aa04-49ea-4fd9-ae3a-6faa574a7c30",
+          "principalId": "e583281b-cbb6-42af-aeb9-437176d4e2f3"
+        }
+      }
+    },
+    "identityProfile": {
+      "kubeletidentity": {
+        "clientId": "408efc99-63a2-4ce1-ad17-f75c78ea62f8",
+        "objectId": "3bec3178-329c-4266-8211-f60c4bce5ab6",
+        "resourceId": "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourcegroups/aks-hlg-tbd-eastus2-01-nrg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aks-hlg-tbd-eastus2-01-agentpool"
+      }
+    },
+    "kubernetesVersion": "1.26.3",
+    "linuxProfile": {
+      "adminUsername": "azureuser",
+      "ssh": {
+        "publicKeys": [
+          {
+            "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC/o0bvds47uCfGsskeU0+o7UwUwpIMTxD6vcF1qwklLLPiDPTvr7lD5+4612riuocfKe2k1L6BYRwG23GiSadYmJkFddf2w3D9vr23IyaUAgYUv9f3UadMqCIRpKIY5FrpNrk/y5qOjRg0nv4Yq1DY2Xm9kzuQPa54houTZsoYUJIrcu0rLZUe5IEn0w/01fqY1ubcGTyq75pyQmR+PO7+h2KJm5gs2EO+C7bVGFByhaWP8byZGE3cMgJ9iMR+gyXCBjnVPRhtxGHXPOX6xcSCYdwl32zS5X+Z7sOlCNx5Pjy7oqTXZ0r8HPce+4wzmKaVOGG2GLtq5xvSPeru5qloByfxsSRdU9CBXTSHFfXWkilrxIUCp2qGOcsfdsWVzAEz3EY/rPTGTp1tFd7P0z6sXFYoNxFQ4pTLOCrQdAJyIL9yDRGIl0XPTZH/pwLni40rSlrxCtlyLQLIYGbOFQBLh4tf1EhcmmNqCOJM1E+uH013O4W3Zo5L1gnMtUUpCcE= rosthan@nordsh\n"
+          }
+        ]
+      }
+    },
+    "location": "eastus2",
+    "maxAgentPools": 100,
+    "name": "aks-hlg-tbd-eastus2-01",
+    "networkProfile": {
+      "dnsServiceIp": "10.0.0.10",
+      "ipFamilies": [
+        "IPv4"
+      ],
+      "loadBalancerProfile": {
+        "allocatedOutboundPorts": null,
+        "effectiveOutboundIPs": null,
+        "enableMultipleStandardLoadBalancers": null,
+        "idleTimeoutInMinutes": null,
+        "managedOutboundIPs": null,
+        "outboundIPs": null,
+        "outboundIpPrefixes": null
+      },
+      "loadBalancerSku": "Standard",
+      "natGatewayProfile": null,
+      "networkDataplane": null,
+      "networkMode": null,
+      "networkPlugin": "kubenet",
+      "networkPluginMode": null,
+      "networkPolicy": "calico",
+      "outboundType": "userDefinedRouting",
+      "podCidr": "10.244.0.0/16",
+      "podCidrs": [
+        "10.244.0.0/16"
+      ],
+      "serviceCidr": "10.0.0.0/16",
+      "serviceCidrs": [
+        "10.0.0.0/16"
+      ]
+    },
+    "nodeResourceGroup": "aks-hlg-tbd-eastus2-01-nrg",
+    "oidcIssuerProfile": {
+      "enabled": false,
+      "issuerUrl": null
+    },
+    "podIdentityProfile": null,
+    "powerState": {
+      "code": "Running"
+    },
+    "privateFqdn": "aks-hlg-tbd-eastus2-01.privatelink.eastus2.azmk8s.io",
+    "privateLinkResources": [
+      {
+        "groupId": "management",
+        "id": null,
+        "name": "management",
+        "privateLinkServiceId": "/subscriptions/36f70e87-eea1-48c1-9e65-b58c9dd2d13f/resourceGroups/hcp-underlay-eastus2-cx-218/providers/Microsoft.Network/privateLinkServices/a39930ef1759d45b4abff80bc9d01f78",
+        "requiredMembers": [
+          "management"
+        ],
+        "type": "Microsoft.ContainerService/managedClusters/privateLinkResources"
+      }
+    ],
+    "provisioningState": "Succeeded",
+    "publicNetworkAccess": "Enabled",
+    "resourceGroup": "rg-hlg-aks",
+    "securityProfile": {
+      "azureKeyVaultKms": null,
+      "defender": null,
+      "imageCleaner": {
+        "enabled": false,
+        "intervalHours": 48
+      },
+      "workloadIdentity": null
+    },
+    "servicePrincipalProfile": {
+      "clientId": "msi"
+    },
+    "sku": {
+      "name": "Base",
+      "tier": "Free"
+    },
+    "storageProfile": {
+      "blobCsiDriver": {
+        "enabled": true
+      },
+      "diskCsiDriver": {
+        "enabled": true
+      },
+      "fileCsiDriver": {
+        "enabled": true
+      },
+      "snapshotController": {
+        "enabled": true
+      }
+    },
+    "supportPlan": "KubernetesOfficial",
+    "systemData": null,
+    "type": "Microsoft.ContainerService/ManagedClusters",
+    "windowsProfile": null,
+    "workloadAutoScalerProfile": {
+      "keda": null
+    }
+  }
+]

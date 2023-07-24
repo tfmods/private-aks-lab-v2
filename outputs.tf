@@ -22,9 +22,3 @@ output "primary_blob_endpoint" {
 output "my_ip" {
   value = data.http.ip.response_body
 } */
-
-
-output "public_key" {
-  value     = module.aks.kube_node_key
-  sensitive = true
-}

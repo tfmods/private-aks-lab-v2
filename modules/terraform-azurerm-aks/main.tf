@@ -8,9 +8,9 @@ terraform {
 }
 
 resource "random_string" "suffix" {
-  length = 3
-  lower  = true
-  upper = false 
+  length  = 3
+  lower   = true
+  upper   = false
   special = false
   numeric = false
 }
@@ -186,7 +186,8 @@ resource "azurerm_kubernetes_cluster" "main" {
 
     ssh_key {
       # remove any new lines using the replace interpolation function
-      key_data = replace(var.public_ssh_key == "" ? tls_private_key.main[0].public_key_openssh : var.public_ssh_key, "\n", "")
+      # key_data = replace(var.public_ssh_key == "" ? tls_private_key.main[0].public_key_openssh : var.public_ssh_key, "\n", "")
+      key_data = file("~/.ssh/id_rsa.pub")
     }
   }
 
@@ -238,7 +239,7 @@ resource "azurerm_kubernetes_cluster" "main" {
       default_node_pool[0].node_count,
       default_node_pool[0].tags,
       location,
-      #  http_proxy_config
+      http_proxy_config
     ]
 
   }

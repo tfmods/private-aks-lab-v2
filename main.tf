@@ -20,6 +20,11 @@ data "azurerm_resource_group" "main_hlg" {
   name     = var.aks_rg_name_hlg
   #  location = "eastus2"
 }
+data "azurerm_private_dns_zone" "main" {
+  provider            = azurerm.tss
+  name                = local.private_dns_zones.aks
+  resource_group_name = data.azurerm_virtual_network.tss.resource_group_name
+}
 
 
 /* data "azurerm_resource_group" "links" {
@@ -101,7 +106,7 @@ data "azurerm_virtual_network" "tcn" {
 }
 
 ###### Zona Privada do AKS
-resource "azurerm_private_dns_zone" "aks" {
+/* resource "azurerm_private_dns_zone" "aks" {
   provider            = azurerm.tss
   name                = local.private_dns_zones.aks
   resource_group_name = data.azurerm_virtual_network.tss.resource_group_name
@@ -112,7 +117,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "main" {
   provider              = azurerm.tss
   name                  = var.aks_network_dns_link
   resource_group_name   = data.azurerm_virtual_network.tss.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.aks.name
+  private_dns_zone_name = data.azurerm_private_dns_zone.main.name
   virtual_network_id    = data.azurerm_virtual_network.main.id
 }
 
@@ -121,7 +126,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "tss" {
   provider              = azurerm.tss
   name                  = var.aks_network_dns_link_tss
   resource_group_name   = data.azurerm_virtual_network.tss.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.aks.name
+  private_dns_zone_name = data.azurerm_private_dns_zone.main.name
   virtual_network_id    = data.azurerm_virtual_network.tss.id
 }
 
@@ -130,9 +135,9 @@ resource "azurerm_private_dns_zone_virtual_network_link" "tcn" {
   provider              = azurerm.tss
   name                  = var.aks_network_dns_link_tcn
   resource_group_name   = data.azurerm_virtual_network.tss.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.aks.name
+  private_dns_zone_name = data.azurerm_private_dns_zone.main.name
   virtual_network_id    = data.azurerm_virtual_network.tcn.id
-}
+} */
 
 
 module "aks_hlg" {
@@ -142,8 +147,8 @@ module "aks_hlg" {
   azurerm_user_assigned_identity = data.azurerm_user_assigned_identity.aks_hlg.id
   resource_group_name            = data.azurerm_resource_group.main_hlg.name
   enable_azurerm_key_vault       = false
-  azurerm_private_dns_zone_name  = azurerm_private_dns_zone.aks.name
-  private_dns_zone_id            = azurerm_private_dns_zone.aks.id
+  azurerm_private_dns_zone_name  = data.azurerm_private_dns_zone.main.name
+  private_dns_zone_id            = data.azurerm_private_dns_zone.main.id
   #gateway_id = "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-tbd-appgw-eastus2-01/providers/Microsoft.Network/applicationGateways/appgw-tbd-eastus2-01"
   private_cluster_enabled = true
   #gateway_id = azurerm_application_gateway.appgw.id
@@ -191,15 +196,15 @@ module "aks_hlg" {
   }]
 
   tags = {
+    "ManagedBy"   = "Terraform"
+    "idorcamento" = "ID000006"
     "ManagedBy" = "Terraform"
+    "invent" = "aks-hlg"
   }
 
   depends_on = [
     #azurerm_application_gateway.appgw,
-    azurerm_private_dns_zone_virtual_network_link.main,
-    azurerm_private_dns_zone_virtual_network_link.tss,
-    azurerm_private_dns_zone_virtual_network_link.tcn,
-    azurerm_private_dns_zone.aks,
+    data.azurerm_private_dns_zone.main,
     data.azurerm_user_assigned_identity.aks,
     data.azurerm_resource_group.main,
     data.azurerm_subnet.main,
@@ -210,15 +215,15 @@ module "aks_hlg" {
 
 
 #########
-module "aks" {
+module "aks_dsv" {
   providers                      = { azurerm = azurerm.main }
   source                         = "./modules/terraform-azurerm-aks"
   aks_name                       = data.azurerm_user_assigned_identity.aks.name
   azurerm_user_assigned_identity = data.azurerm_user_assigned_identity.aks.id
   resource_group_name            = data.azurerm_resource_group.main.name
   enable_azurerm_key_vault       = false
-  azurerm_private_dns_zone_name  = azurerm_private_dns_zone.aks.name
-  private_dns_zone_id            = azurerm_private_dns_zone.aks.id
+  azurerm_private_dns_zone_name  = data.azurerm_private_dns_zone.main.name
+  private_dns_zone_id            = data.azurerm_private_dns_zone.main.id
   #gateway_id = "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-tbd-appgw-eastus2-01/providers/Microsoft.Network/applicationGateways/appgw-tbd-eastus2-01"
   private_cluster_enabled = true
   #gateway_id = azurerm_application_gateway.appgw.id
@@ -257,10 +262,10 @@ module "aks" {
 
   depends_on = [
     #azurerm_application_gateway.appgw,
-    azurerm_private_dns_zone_virtual_network_link.main,
+    /* azurerm_private_dns_zone_virtual_network_link.main,
     azurerm_private_dns_zone_virtual_network_link.tss,
-    azurerm_private_dns_zone_virtual_network_link.tcn,
-    azurerm_private_dns_zone.aks,
+    azurerm_private_dns_zone_virtual_network_link.tcn, */
+    data.azurerm_private_dns_zone.main,
     data.azurerm_user_assigned_identity.aks,
     data.azurerm_resource_group.main,
     data.azurerm_subnet.main,

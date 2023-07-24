@@ -1,0 +1,117 @@
+
+Interrupt received.
+Please wait for Terraform to exit or data loss may occur.
+Gracefully shutting down...
+
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mValue for undeclared variable[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe root module does not declare a variable named "waf_policy_name" but a
+[33m│[0m [0mvalue was found in file "./envs/dev.tfvars". If you meant to use this
+[33m│[0m [0mvalue, add a "variable" block to the configuration.
+[33m│[0m [0m
+[33m│[0m [0mTo silence these warnings, use TF_VAR_... environment variables to provide
+[33m│[0m [0mcertain "global" settings to all configurations in your organization. To
+[33m│[0m [0mreduce the verbosity of these warnings, use the -compact-warnings option.
+[33m╵[0m[0m
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mResource targeting is in effect[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mYou are creating a plan with the -target option, which means that the
+[33m│[0m [0mresult of this plan may not represent all of the changes requested by the
+[33m│[0m [0mcurrent configuration.
+[33m│[0m [0m
+[33m│[0m [0mThe -target option is not for routine use, and is provided only for
+[33m│[0m [0mexceptional situations such as recovering from errors or mistakes, or when
+[33m│[0m [0mTerraform specifically suggests to use it as part of an error message.
+[33m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mInvalid provider configuration[0m
+[31m│[0m [0m
+[31m│[0m [0m[0mProvider "registry.terraform.io/hashicorp/azuread" requires explicit
+[31m│[0m [0mconfiguration. Add a provider block to the root module and configure the
+[31m│[0m [0mprovider's required arguments as described in the provider documentation.
+[31m│[0m [0m
+[31m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mbuilding client: unable to obtain access token: running Azure CLI: signal: interrupt: Traceback (most recent call last):
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/azure/cli/__main__.py", line 62, in <module>
+[31m│[0m [0m    raise ex
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/azure/cli/__main__.py", line 55, in <module>
+[31m│[0m [0m    sys.exit(exit_code)
+[31m│[0m [0mSystemExit: 0
+[31m│[0m [0m
+[31m│[0m [0mDuring handling of the above exception, another exception occurred:
+[31m│[0m [0m
+[31m│[0m [0mTraceback (most recent call last):
+[31m│[0m [0m  File "/opt/az/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+[31m│[0m [0m    return _run_code(code, main_globals, None,
+[31m│[0m [0m  File "/opt/az/lib/python3.10/runpy.py", line 86, in _run_code
+[31m│[0m [0m    exec(code, run_globals)
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/azure/cli/__main__.py", line 129, in <module>
+[31m│[0m [0m    telemetry.conclude()
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/azure/cli/core/telemetry.py", line 257, in _wrapper
+[31m│[0m [0m    return func(*args, **kwargs)
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/azure/cli/core/decorators.py", line 79, in _wrapped_func
+[31m│[0m [0m    return func(*args, **kwargs)
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/azure/cli/core/telemetry.py", line 313, in conclude
+[31m│[0m [0m    save(get_config_dir(), _session.generate_payload())
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/azure/cli/core/decorators.py", line 79, in _wrapped_func
+[31m│[0m [0m    return func(*args, **kwargs)
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/azure/cli/core/telemetry.py", line 106, in generate_payload
+[31m│[0m [0m    base = self._get_base_properties()
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/azure/cli/core/telemetry.py", line 130, in _get_base_properties
+[31m│[0m [0m    'Reserved.SessionId': _get_session_id(),
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/azure/cli/core/decorators.py", line 79, in _wrapped_func
+[31m│[0m [0m    return func(*args, **kwargs)
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/azure/cli/core/telemetry.py", line 550, in _get_session_id
+[31m│[0m [0m    parent_process = process.parent()
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/psutil/__init__.py", line 549, in parent
+[31m│[0m [0m    lowest_pid = _LOWEST_PID if _LOWEST_PID is not None else pids()[0]
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/psutil/__init__.py", line 1372, in pids
+[31m│[0m [0m    ret = sorted(_psplatform.pids())
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/psutil/_pslinux.py", line 1597, in pids
+[31m│[0m [0m    return [int(x) for x in os.listdir(b(get_procfs_path())) if x.isdigit()]
+[31m│[0m [0mKeyboardInterrupt[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with provider["registry.terraform.io/hashicorp/azuread"],
+[31m│[0m [0m  on <empty> line 0:
+[31m│[0m [0m  (source code not available)
+[31m│[0m [0m
+[31m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1munable to get MSAL authorization token for resource manager API: obtaining Authorization Token from the Azure CLI: parsing json result from the Azure CLI: waiting for the Azure CLI: signal: interrupt: Traceback (most recent call last):
+[31m│[0m [0m  File "/opt/az/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+[31m│[0m [0m    return _run_code(code, main_globals, None,
+[31m│[0m [0m  File "/opt/az/lib/python3.10/runpy.py", line 86, in _run_code
+[31m│[0m [0m    exec(code, run_globals)
+[31m│[0m [0m  File "/opt/az/lib/python3.10/site-packages/azure/cli/__main__.py", line 12, in <module>
+[31m│[0m [0m    import uuid
+[31m│[0m [0m  File "/opt/az/lib/python3.10/uuid.py", line 50, in <module>
+[31m│[0m [0m    from enum import Enum
+[31m│[0m [0m  File "/opt/az/lib/python3.10/enum.py", line 814, in <module>
+[31m│[0m [0m    class Flag(Enum):
+[31m│[0m [0m  File "/opt/az/lib/python3.10/enum.py", line 329, in __new__
+[31m│[0m [0m    class_method = getattr(enum_class, name)
+[31m│[0m [0mKeyboardInterrupt[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with provider["registry.terraform.io/hashicorp/azurerm"].main,
+[31m│[0m [0m  on providers.tf line 20, in provider "azurerm":
+[31m│[0m [0m  20: provider "azurerm" [4m{[0m[0m
+[31m│[0m [0m
+[31m╵[0m[0m
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1munable to get MSAL authorization token for resource manager API: obtaining Authorization Token from the Azure CLI: parsing json result from the Azure CLI: waiting for the Azure CLI: exit status 1: Fatal Python error: init_sys_streams: can't initialize sys standard streams
+[31m│[0m [0mPython runtime state: core initialized
+[31m│[0m [0mTraceback (most recent call last):
+[31m│[0m [0m  File "/usr/bin/../../opt/az/lib/python3.10/io.py", line 87, in <module>
+[31m│[0m [0m    class IOBase(_io._IOBase, metaclass=abc.ABCMeta):
+[31m│[0m [0m  File "/usr/bin/../../opt/az/lib/python3.10/abc.py", line 106, in __new__
+[31m│[0m [0m    cls = super().__new__(mcls, name, bases, namespace, **kwargs)
+[31m│[0m [0mKeyboardInterrupt[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with provider["registry.terraform.io/hashicorp/azurerm"].tss,
+[31m│[0m [0m  on providers.tf line 27, in provider "azurerm":
+[31m│[0m [0m  27: provider "azurerm" [4m{[0m[0m
+[31m│[0m [0m
+[31m╵[0m[0m

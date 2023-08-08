@@ -272,6 +272,65 @@ module "aks_dsv" {
   ]
 }
 
+######### AKS_PRD
+
+module "aks_prd" {
+  providers                      = { azurerm = azurerm.main }
+  source                         = "./modules/terraform-azurerm-aks"
+  aks_name                       = data.azurerm_user_assigned_identity.aks.name
+  azurerm_user_assigned_identity = data.azurerm_user_assigned_identity.aks.id
+  resource_group_name            = data.azurerm_resource_group.main.name
+  enable_azurerm_key_vault       = false
+  azurerm_private_dns_zone_name  = data.azurerm_private_dns_zone.main.name
+  private_dns_zone_id            = data.azurerm_private_dns_zone.main.id
+  #gateway_id = "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-tbd-appgw-eastus2-01/providers/Microsoft.Network/applicationGateways/appgw-tbd-eastus2-01"
+  private_cluster_enabled = true
+  #gateway_id = azurerm_application_gateway.appgw.id
+  # If aks ne
+  #Storage Profile deployment
+  storage_profile_enabled                     = true
+  storage_profile_blob_driver_enabled         = true
+  storage_profile_disk_driver_enabled         = true
+  storage_profile_file_driver_enabled         = true
+  storage_profile_snapshot_controller_enabled = true
+  proxy_url                                   = var.proxy_url
+  no_proxy                                    = var.no_proxy
+  availability_zones                          = ["1"]
+  enable_auto_scaling                         = "true"
+  max_pods                                    = 100
+  #  orchestrator_version = data.azurerm_kubernetes_service_versions.aks.latest_version
+
+  orchestrator_version = "1.26.3" # Current Default Version
+  vnet_subnet_id       = data.azurerm_subnet.main.id
+  vnet_id              = data.azurerm_virtual_network.main.id
+  max_count            = 3
+  min_count            = 1
+  node_count           = 1
+  #enable_log_analytics_workspace = true
+  network_plugin    = "kubenet"
+  network_policy    = "calico"
+  load_balancer_sku = "standard"
+  outbound_type     = var.outbound_type
+
+  only_critical_addons_enabled = false
+
+
+  tags = {
+    "ManagedBy" = "Terraform"
+  }
+
+  depends_on = [
+    #azurerm_application_gateway.appgw,
+    /* azurerm_private_dns_zone_virtual_network_link.main,
+    azurerm_private_dns_zone_virtual_network_link.tss,
+    azurerm_private_dns_zone_virtual_network_link.tcn, */
+    data.azurerm_private_dns_zone.main,
+    data.azurerm_user_assigned_identity.aks,
+    data.azurerm_resource_group.main,
+    data.azurerm_subnet.main,
+  ]
+}
+
 /* resource "azurerm_public_ip" "appgw" {
   name                = "${var.appgw_name}-pip"
   resource_group_name = data.azurerm_resource_group.main.name

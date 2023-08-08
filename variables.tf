@@ -146,6 +146,10 @@ variable "main_subscription_id" {
   description = "Subscription onde os recursos serão deployados"
 }
 
+variable "prd_subscription_id" {
+  description = "Subscription onde os recursos serão deployados"
+}
+
 variable "tss_subscription_id" {
   description = "Subscription onde estão os Private Links   -Terra shared services"
 }

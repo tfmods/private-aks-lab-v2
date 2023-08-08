@@ -25,6 +25,13 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
+  alias = "prd"
+  ## essa main subscription é a subcription onde será feito o deploy do aks do cliente.
+  subscription_id = var.prd_subscription_id
+  features {}
+}
+
+provider "azurerm" {
   alias = "tss"
   ## essa link subscription é a subcription que contem as redes onde será linkado o private dns
   subscription_id = var.tss_subscription_id

@@ -20,6 +20,13 @@ data "azurerm_resource_group" "main_hlg" {
   name     = var.aks_rg_name_hlg
   #  location = "eastus2"
 }
+
+data "azurerm_resource_group" "prd" {
+  provider = azurerm.prd
+  name     = var.aks_rg_name_prd
+  #  location = "eastus2"
+}
+
 data "azurerm_private_dns_zone" "main" {
   provider            = azurerm.tss
   name                = local.private_dns_zones.aks
@@ -44,6 +51,12 @@ data "azurerm_user_assigned_identity" "aks_hlg" {
   provider            = azurerm.main
   name                = var.aks_managed_identity_hlg
   resource_group_name = data.azurerm_resource_group.main_hlg.name
+}
+
+data "azurerm_user_assigned_identity" "aks_prd" {
+  provider            = azurerm.prd
+  name                = var.aks_managed_identity_prd
+  resource_group_name = data.azurerm_resource_group.prd.name
 }
 
 # Get latest kubernetes Version
@@ -77,6 +90,14 @@ data "azurerm_subnet" "tss" {
   resource_group_name  = var.kv_subnet_rg
 }
 
+#TBP SUBNET
+data "azurerm_subnet" "prd" {
+  provider             = azurerm.prd
+  name                 = var.aks_subnet_prd
+  virtual_network_name = var.aks_vnet_prd
+  resource_group_name  = var.aks_network_rg_prd
+}
+
 #APPGW_SUBNET
 
 data "azurerm_subnet" "appgw" {
@@ -103,6 +124,12 @@ data "azurerm_virtual_network" "tcn" {
   provider            = azurerm.tcn
   name                = local.tcn.network
   resource_group_name = local.tcn.rg
+}
+
+data "azurerm_virtual_network" "prd" {
+  provider            = azurerm.prd
+  name                = local.prd.network
+  resource_group_name = local.prd.rg
 }
 
 ###### Zona Privada do AKS
@@ -275,14 +302,15 @@ module "aks_dsv" {
 ######### AKS_PRD
 
 module "aks_prd" {
-  providers                      = { azurerm = azurerm.main }
+  providers                      = { azurerm = azurerm.prd }
   source                         = "./modules/terraform-azurerm-aks"
-  aks_name                       = data.azurerm_user_assigned_identity.aks.name
-  azurerm_user_assigned_identity = data.azurerm_user_assigned_identity.aks.id
-  resource_group_name            = data.azurerm_resource_group.main.name
+  aks_name                       = data.azurerm_user_assigned_identity.aks_prd.name
+  azurerm_user_assigned_identity = data.azurerm_user_assigned_identity.aks_prd.id
+  resource_group_name            = data.azurerm_resource_group.prd.name
   enable_azurerm_key_vault       = false
   azurerm_private_dns_zone_name  = data.azurerm_private_dns_zone.main.name
   private_dns_zone_id            = data.azurerm_private_dns_zone.main.id
+  vm_size = "Standard_D16as_v5"
   #gateway_id = "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-tbd-appgw-eastus2-01/providers/Microsoft.Network/applicationGateways/appgw-tbd-eastus2-01"
   private_cluster_enabled = true
   #gateway_id = azurerm_application_gateway.appgw.id
@@ -295,14 +323,14 @@ module "aks_prd" {
   storage_profile_snapshot_controller_enabled = true
   proxy_url                                   = var.proxy_url
   no_proxy                                    = var.no_proxy
-  availability_zones                          = ["1"]
+  availability_zones                          = ["1","2","3"]
   enable_auto_scaling                         = "true"
   max_pods                                    = 100
   #  orchestrator_version = data.azurerm_kubernetes_service_versions.aks.latest_version
 
   orchestrator_version = "1.26.3" # Current Default Version
-  vnet_subnet_id       = data.azurerm_subnet.main.id
-  vnet_id              = data.azurerm_virtual_network.main.id
+  vnet_subnet_id       = data.azurerm_subnet.prd.id
+  vnet_id              = data.azurerm_virtual_network.prd.id
   max_count            = 3
   min_count            = 1
   node_count           = 1
@@ -314,9 +342,27 @@ module "aks_prd" {
 
   only_critical_addons_enabled = false
 
+  node_pools = [
+    {
+      name                 = "aksprdnp001"
+      availability_zones   = ["1", "2", "3"]
+      enable_auto_scaling  = true
+      max_pods             = 250
+      orchestrator_version = "1.26.3"
+      priority             = "Regular"
+      max_count            = 3
+      min_count            = 1
+      node_count           = 3
+      vm_size              = "Standard_D16as_v5"
+  }]
 
   tags = {
+    "ManagedBy"   = "Terraform"
+    "idorcamento" = "ID000054"
+    "trilha" = "Prod"
+    "projeto" = "Terra-Brasil"
     "ManagedBy" = "Terraform"
+    "invent" = "aks-prd"
   }
 
   depends_on = [

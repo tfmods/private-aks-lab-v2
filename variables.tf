@@ -216,3 +216,25 @@ variable "appgw_name" {
 }
 
 variable "aks_subnet_hlg" {}
+
+## Variaveis de Prod
+
+variable "aks_subnet_prd" {}
+
+variable "aks_rg_name_prd" {
+  description = "Nome do rg onde o aks será deployado"
+}
+
+variable "aks_network_rg_prd" {
+  description = "rg onde esta a rede do aks"
+}
+
+variable "aks_vnet_prd" {
+  description = "Subnet onde"
+}
+
+variable "aks_managed_identity_prd" {
+  default     = {}
+  description = "identidade gerenciada para aks - deve ser solicitado ao time de segurança"
+
+}

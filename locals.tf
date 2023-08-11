@@ -8,6 +8,11 @@ locals {
     network = "vn-tcn-br-eastus2"
     rg      = "rg-network-tcn-br-eastus2-01"
   }
+
+  prd = {
+    network = "vn-tbp-eastus2"
+    rg      = "rg-network-tbp-eastus2-01"
+  }
 }
 
 locals {

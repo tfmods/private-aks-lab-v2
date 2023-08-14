@@ -201,6 +201,7 @@ module "aks_hlg" {
   node_count           = 1
   #enable_log_analytics_workspace = true
   network_plugin    = "kubenet"
+  pod_cidr          = "10.244.0.0/16"
   network_policy    = "calico"
   load_balancer_sku = "standard"
   outbound_type     = var.outbound_type
@@ -225,8 +226,8 @@ module "aks_hlg" {
   tags = {
     "ManagedBy"   = "Terraform"
     "idorcamento" = "ID000006"
-    "ManagedBy" = "Terraform"
-    "invent" = "aks-hlg"
+    "ManagedBy"   = "Terraform"
+    "invent"      = "aks-hlg"
   }
 
   depends_on = [
@@ -276,6 +277,7 @@ module "aks_dsv" {
   node_count           = 1
   #enable_log_analytics_workspace = true
   network_plugin    = "kubenet"
+  pod_cidr          = "10.243.0.0/16"
   network_policy    = "calico"
   load_balancer_sku = "standard"
   outbound_type     = var.outbound_type
@@ -310,7 +312,7 @@ module "aks_prd" {
   enable_azurerm_key_vault       = false
   azurerm_private_dns_zone_name  = data.azurerm_private_dns_zone.main.name
   private_dns_zone_id            = data.azurerm_private_dns_zone.main.id
-  vm_size = "Standard_D16as_v5"
+  vm_size                        = "Standard_D16as_v5"
   #gateway_id = "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-tbd-appgw-eastus2-01/providers/Microsoft.Network/applicationGateways/appgw-tbd-eastus2-01"
   private_cluster_enabled = true
   #gateway_id = azurerm_application_gateway.appgw.id
@@ -323,7 +325,7 @@ module "aks_prd" {
   storage_profile_snapshot_controller_enabled = true
   proxy_url                                   = var.proxy_url
   no_proxy                                    = var.no_proxy
-  availability_zones                          = ["1","2","3"]
+  availability_zones                          = ["1", "2", "3"]
   enable_auto_scaling                         = "true"
   max_pods                                    = 100
   #  orchestrator_version = data.azurerm_kubernetes_service_versions.aks.latest_version
@@ -336,6 +338,7 @@ module "aks_prd" {
   node_count           = 1
   #enable_log_analytics_workspace = true
   network_plugin    = "kubenet"
+  pod_cidr          = "10.242.0.0/16"
   network_policy    = "calico"
   load_balancer_sku = "standard"
   outbound_type     = var.outbound_type
@@ -359,10 +362,10 @@ module "aks_prd" {
   tags = {
     "ManagedBy"   = "Terraform"
     "idorcamento" = "ID000054"
-    "trilha" = "Prod"
-    "projeto" = "Terra-Brasil"
-    "ManagedBy" = "Terraform"
-    "invent" = "aks-prd"
+    "trilha"      = "Prod"
+    "projeto"     = "Terra-Brasil"
+    "ManagedBy"   = "Terraform"
+    "invent"      = "aks-prd"
   }
 
   depends_on = [

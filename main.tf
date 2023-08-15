@@ -205,7 +205,7 @@ module "aks_hlg" {
   network_policy    = "calico"
   load_balancer_sku = "standard"
   outbound_type     = var.outbound_type
-  gateway_id        = "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-hlg-aks/providers/Microsoft.Network/applicationGateways/appgw-hlg-tbd-eastus2-01"
+  //gateway_id        = "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-hlg-aks/providers/Microsoft.Network/applicationGateways/appgw-hlg-tbd-eastus2-01"
 
   only_critical_addons_enabled = false
 

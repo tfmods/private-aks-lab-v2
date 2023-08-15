@@ -29,14 +29,3 @@ locals {
 
 }
 
-locals {
-  backend_address_pool_name      = "${data.azurerm_virtual_network.main.name}-beap"
-  frontend_port_name_http        = "${data.azurerm_virtual_network.main.name}-feport-http"
-  frontend_port_name_https       = "${data.azurerm_virtual_network.main.name}-feport-https"
-  frontend_ip_configuration_name = "${data.azurerm_virtual_network.main.name}-feip"
-  http_setting_name              = "${data.azurerm_virtual_network.main.name}-be-htst"
-  listener_name                  = "${data.azurerm_virtual_network.main.name}-httplstn"
-  listener_name_s                = "${data.azurerm_virtual_network.main.name}-httpslstn"
-  request_routing_rule_name      = "${data.azurerm_virtual_network.main.name}-rqrt"
-  redirect_configuration_name    = "${data.azurerm_virtual_network.main.name}-rdrcfg"
-}

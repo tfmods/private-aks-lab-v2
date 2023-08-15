@@ -1,4 +1,3 @@
-
 variable "alw_name" {
   type        = string
   default     = "alw"

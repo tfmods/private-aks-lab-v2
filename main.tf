@@ -205,8 +205,8 @@ module "aks_hlg" {
   network_policy    = "calico"
   load_balancer_sku = "standard"
   outbound_type     = var.outbound_type
-  //gateway_id        = "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-hlg-aks/providers/Microsoft.Network/applicationGateways/appgw-hlg-tbd-eastus2-01"
-
+  gateway_id = "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-hlg-aks/providers/Microsoft.Network/applicationGateways/appgw-hlg-tbd-eastus2-01"
+  
   only_critical_addons_enabled = false
 
 
@@ -240,11 +240,8 @@ module "aks_hlg" {
   ]
 }
 
-
-
-
 #########
-module "aks_dsv" {
+/* module "aks_dsv" {
   providers                      = { azurerm = azurerm.main }
   source                         = "./modules/terraform-azurerm-aks"
   aks_name                       = data.azurerm_user_assigned_identity.aks.name
@@ -292,15 +289,15 @@ module "aks_dsv" {
 
   depends_on = [
     #azurerm_application_gateway.appgw,
-    /* azurerm_private_dns_zone_virtual_network_link.main,
+    azurerm_private_dns_zone_virtual_network_link.main,
     azurerm_private_dns_zone_virtual_network_link.tss,
-    azurerm_private_dns_zone_virtual_network_link.tcn, */
+    azurerm_private_dns_zone_virtual_network_link.tcn, 
     data.azurerm_private_dns_zone.main,
     data.azurerm_user_assigned_identity.aks,
     data.azurerm_resource_group.main,
     data.azurerm_subnet.main,
   ]
-}
+} */
 
 ######### AKS_PRD
 

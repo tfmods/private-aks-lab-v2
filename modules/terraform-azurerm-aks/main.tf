@@ -117,10 +117,9 @@ resource "azurerm_kubernetes_cluster" "main" {
     load_balancer_sku  = var.load_balancer_sku
   }
 
-  ingress_application_gateway {
-    //gateway_id = var.gateway_id == true ? var.gateway_id : null
-  gateway_name = "qualquernomeai"
-  subnet_id = "/subscriptions/f08b1fe3-f4f7-4c0a-bb51-d6a47cf1a81c/resourceGroups/rg-network-tbd-eastus2-01/providers/Microsoft.Network/virtualNetworks/vn-tbd-eastus2/subnets/AppGw"
+ingress_application_gateway {
+    gateway_id = var.gateway_id
+    
   }
 
   default_node_pool {

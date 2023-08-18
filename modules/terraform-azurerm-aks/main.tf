@@ -117,10 +117,10 @@ resource "azurerm_kubernetes_cluster" "main" {
     load_balancer_sku  = var.load_balancer_sku
   }
 
-ingress_application_gateway {
-    gateway_id = var.gateway_id
+#ingress_application_gateway {
+#    gateway_id = var.gateway_id
     
-  }
+#  }
 
   default_node_pool {
     name                         = "aksdnp${random_string.suffix.result}"
@@ -239,7 +239,7 @@ ingress_application_gateway {
       default_node_pool[0].node_count,
       default_node_pool[0].tags,
       location,
-      http_proxy_config
+    #  http_proxy_config
     ]
 
   }

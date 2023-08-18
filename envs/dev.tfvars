@@ -33,68 +33,18 @@ aks_network_rg_prd       = "rg-network-tbp-eastus2-01"
 waf_policy_name          = "dev-waf-policy-tbd-eastus2-01"
 appgw_name               = "dev-appgw-tbd-eastus2-01"
 acr_sku                  = "standard"
-#appgw_vnet_name                                 = "vn-tbd-eastus2"
+
+#appgw_vnet_name = "vn-tbd-eastus2"
 aks_rg_name     = "rg-dsv-aks"
 aks_rg_name_hlg = "rg-hlg-aks"
 aks_rg_name_prd = "rg-prd-aks"
-proxy_url       = "http://10.253.126.72:3128/"
+proxy_url       = "http://proxy-az.tpn.terra.com:8080/"
+
 no_proxy = ["localhost",
   "127.0.0.1",
-  "10.224.234.0/23",
-  "10.225.125.0/25",
-  "api.terra.com",
-  "api-hlg-priv.terra.com.br",
-  "api-priv.terra.com.br",
   ".privatelink.eastus2.azmk8s.io",
-  "minio-tpn.terra.com",
-  "minio.tpn.terra.com",
-  "npm-registry.terra.com",
-  "npm-registry.tpn.terra.com",
-  "alertmanager-k8s.terra.com",
-  "prometheus-k8s.terra.com",
-  "kafka-k8s.terra.com",
-  "ganesha-hlg.terra.com",
-  "renderer-hlg.terra.com",
-  "croupier-hlg.terra.com",
-  "montador-hlg.terra.com",
-  "servicos-hlg.tpn.terra.com",
-  "dashboard4p.terra.com",
-  "sonarqube.tpn.terra.com",
-  "nexus-repo.tpn.terra.com",
-  "musa-hlg.tpn.terra.com",
-  "musa.tpn.terra.com",
-  "musa-adm.terra.com.br",
-  "navbar-hlg.tpn.terra.com",
-  "navbar.tpn.terra.com",
-  "navbar-adm.terra.com.br",
-  "navbar.adm.terra.com.br",
-  "hlg-ilive.tpn.terra.com",
-  "ilive.tpn.terra.com",
-  "hlg-painelmayorista.tpn.terra.com",
-  "hlg-painelmayorista-pe.tpn.terra.com",
-  "hlg-painelmayorista-co.tpn.terra.com",
-  "fgc.tpn.terra.com",
-  "cengine.tpn.terra.com",
-  "elk-svc.tpn.terra.com",
-  "kibana-svc.tpn.terra.com",
-  "minhasenha.tpn.terra.com",
-  "cms.tpn.terra.com",
-  "cms.tpn.terra.com",
-  "minhasenha.corp.terra.com",
-  "micontrasena.corp.terra.com",
-  "mypassword.corp.terra.com",
-  "dsv-hermes-api.tpn.terra.com",
-  "dsv-hermes-frontend.tpn.terra.com",
-  "qa-hermes-frontend.tpn.terra.com",
-  "qa-hermes-api.tpn.terra.com",
-  "hlg-hermes-frontend.tpn.terra.com",
-  "hlg-hermes-api.tpn.terra.com",
-  "hermes.tpn.terra.com",
-  "hermes-api.tpn.terra.com",
-  "rt-hlg.tpn.terra.com",
-  "uptime-kuma.tpn.terra.com",
-  "lb-dsv-azr.tpn.terra.com",
-  "google.com"
+  ".terra.com",
+  ".terra.com.br",
 ]
 
 tss_subscription_id  = "2d4a11ab-535f-464e-9bed-fad7b59415bf"

@@ -38,7 +38,7 @@ acr_sku                  = "standard"
 aks_rg_name     = "rg-dsv-aks"
 aks_rg_name_hlg = "rg-hlg-aks"
 aks_rg_name_prd = "rg-prd-aks"
-proxy_url       = "http://proxy-az.tpn.terra.com:8080/"
+proxy_url       = "http://10.253.126.72:3128/"
 
 no_proxy = ["localhost",
   "127.0.0.1",
